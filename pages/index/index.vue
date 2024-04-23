@@ -1,4 +1,4 @@
-<template>
+this.adapterState = await this.BLE.getBluetoothAdapterState()<template>
 	<view class="content">
 		<image class="logo" src="/static/logo.png"></image>
 		<view class="text-area">
@@ -14,10 +14,35 @@
 				title: 'Hello'
 			}
 		},
-		onLoad() {
-
+		async onLoad() {
+			await this.$onLaunched
+			this.adapterState = await this.BLE.getBluetoothAdapterState()
+			this.getDeviceList()
 		},
 		methods: {
+			async getDeviceList() {
+				const adapterState = await this.BLE.getBluetoothAdapterState()
+				if( adapterState.available ){
+					if( adapterState.discovering ) { // && this.devices.length < 1
+						const list = await this.BLE.getDeviceList()
+						this.devices = list ? list : []
+						console.log("devices: ", this.devices)
+						return
+					}
+					uni.showToast({
+						title: '获取设备...',
+						icon: 'loading',
+						duration: '99999',
+						mask: true
+					})
+					this.BLE.startBluetoothDevicesDiscovery('SND', 'BLE')
+					this.BLE.onGetBLEDevices((e)=>{
+						// this.loading = false
+						uni.hideToast()
+						this.devices = e
+					})
+				}
+			},
 
 		}
 	}

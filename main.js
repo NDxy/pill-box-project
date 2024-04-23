@@ -4,6 +4,10 @@ import App from './App'
 import Vue from 'vue'
 import './uni.promisify.adaptor'
 Vue.config.productionTip = false
+Vue.prototype.BLE = BLE
+Vue.prototype.$onLaunched = new Promise(resolve => {
+    Vue.prototype.$isResolve = resolve
+})
 App.mpType = 'app'
 const app = new Vue({
   ...App
