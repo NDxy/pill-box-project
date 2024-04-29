@@ -1,4 +1,6 @@
 import App from './App'
+import BLE from './common/bluetooth/BLE_controller'
+
 
 // #ifndef VUE3
 import Vue from 'vue'

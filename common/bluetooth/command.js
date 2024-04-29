@@ -1,55 +1,23 @@
-const BT_SND = {
-	// 开发
-	DEVICES_OPEN: {
-		COMMAND: "BLE_O",
-	},
-	// 停水
-	// DEVICES_STOP: {
-	// 	COMMAND: "BLE_S",
-	// },
-	// 关阀
-	DEVICES_CLOSE:{
-		COMMAND: "BLE_C",
-	},
+const BT_YH = {
 	// 连接认证
 	DEVIDES_AUTH: {
-		COMMAND: "BLE_A"
+		COMMAND: "YH_A"
 	},
 	// 初始化认证
-	DEVIDES_INIT: {
-		COMMAND: "BLE_I"
+	DEVIDES_SET: {
+		COMMAND: "YH_set"
 	},
-	// 激活绑定
-	DEVIDES_BIND: {
-		COMMAND: "BLE_B"
+	// 删除药盒
+	DEVIDES_CLR: {
+		COMMAND: "YH_CLR"
 	},
-	// 激活绑定
-	DEVIDES_RESET: {
-		COMMAND: "BLE_R"
+	// 药盒搜寻打开
+	DEVIDES_SEARCH_OPEN: {
+		COMMAND: "YH_SEARCH_OPEN_END"
 	},
-	// 上载数据成功
-	UPLOAD_SUCCESS: {
-		COMMAND: "BLE_U_SUCCESS"
-	},
-	// 设置设备参数
-	SET_PARAM: {
-		COMMAND: "BLE_P_S"
-	},
-	// 设置设备参数
-	SET_PARAM_ALL: {
-		COMMAND: "BLE_P_S_ALL"
-	},
-	// 获取设备参数
-	QUERY_PARAM: {
-		COMMAND: "BLE_P_Q"
-	},
-	// 获取设备所有参数
-	QUERY_PARAM_ALL: {
-		COMMAND: "BLE_P_Q_ALL"
-	},
-	// 获取设备所有参数
-	QUERY_ORDER_STATE: {
-		COMMAND: "BLE_S"
+	// 药盒搜寻关闭
+	DEVIDES_SEARCH_CLOSE: {
+		COMMAND: "YH_SEARCH_CLOSE_END"
 	}
 }
 

@@ -1,6 +1,6 @@
-this.adapterState = await this.BLE.getBluetoothAdapterState()<template>
+<template>
 	<view class="content">
-		<image class="logo" src="/static/logo.png"></image>
+		<image class="logo" @click="getDeviceList" src="/static/logo.png"></image>
 		<view class="text-area">
 			<text class="title">{{title}}</text>
 		</view>
@@ -11,7 +11,8 @@ this.adapterState = await this.BLE.getBluetoothAdapterState()<template>
 	export default {
 		data() {
 			return {
-				title: 'Hello'
+				title: 'Hello',
+				devices: []
 			}
 		},
 		async onLoad() {
@@ -35,7 +36,7 @@ this.adapterState = await this.BLE.getBluetoothAdapterState()<template>
 						duration: '99999',
 						mask: true
 					})
-					this.BLE.startBluetoothDevicesDiscovery('SND', 'BLE')
+					this.BLE.startBluetoothDevicesDiscovery('YH', 'BLE')
 					this.BLE.onGetBLEDevices((e)=>{
 						// this.loading = false
 						uni.hideToast()

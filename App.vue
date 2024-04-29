@@ -1,6 +1,6 @@
 <script>
 	export default {
-		onLaunch: function() {
+		onLaunch: async function() {
 			console.log('App Launch')
 			uni.getLocation({
 				type: 'wgs84',
