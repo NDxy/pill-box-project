@@ -693,7 +693,6 @@ class BLEController {
 			let buffer = str2ab(command.slice(i, i+20));
 			// console.log("发送的蓝牙分包指令", command.slice(i, i+20))
 			setTimeout(() => {
-				// this.sendMassage(command);
 				uni.writeBLECharacteristicValue({
 				  // 这里的 deviceId 需要在 getBluetoothDevices 或 onBluetoothDeviceFound 接口中获取
 				  deviceId: this.deviceId,
@@ -880,36 +879,6 @@ class BLEController {
 		}, 5000)
 		if (param.success) this.on('openWater', param.success)
 	}
-	/**
-	 * 热水关阀
-	 */
-	static closeWater(param){
-		this.sendMassage(BT_SND.DEVICES_CLOSE.COMMAND + "_" + this.deviceACode + "_END")
-		this.removeEvent('closeWater')
-		this.timeoutErr("关阀", () => {
-			// 触发开阀事件
-			this.fire('closeWater', {
-				code: 408, msg: '关阀超时', status: false,
-				data: this.device
-			})
-		}, 10000)
-		if (param.success) this.on('closeWater', param.success)
-	}
-	/**
-	 * 热水关阀
-	 */
-	static stopWater(param){
-		this.sendMassage(BT_SND.DEVICES_CLOSE.COMMAND + "_" + this.deviceACode + "_END")
-		this.removeEvent('stopWater')
-		this.timeoutErr("关阀", () => {
-			// 触发开阀事件
-			this.fire('stopWater', {
-				code: 408, msg: '关阀超时', status: false,
-				data: this.device
-			})
-		}, 10000)
-		if (param.success) this.on('stopWater', param.success)
-	}
 	// *******************************添加事件*******************************
 	
 	/**
@@ -1012,14 +981,6 @@ class BLEController {
 				toast(`设备${msg}超时，请重新蓝牙连接此设备后再执行此操作`)
 			}
 		}, time)
-		
-		// if(this.deviceLinked) {
-		// 	clearTimeout(this.timer)
-		// }else {
-		// this.deviceLinked = false
-		// this.closeBLEConnection()
-		// toast(`设备${msg}超时，请重新蓝牙连接此设备后再执行此操作`)
-		// }
 	}
 }
 
