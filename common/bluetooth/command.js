@@ -5,7 +5,11 @@ const BT_YH = {
 	},
 	// 初始化认证
 	DEVIDES_SET: {
-		COMMAND: "YH_set"
+		COMMAND: "YH_SET"
+	},
+	// 同步时间
+	DEVIDES_TIME: {
+		COMMAND: "YH_TIME"
 	},
 	// 删除药盒
 	DEVIDES_CLR: {
@@ -21,4 +25,4 @@ const BT_YH = {
 	}
 }
 
-export default BT_SND
+export default BT_YH

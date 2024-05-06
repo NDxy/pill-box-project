@@ -74,16 +74,7 @@
 					})
 				}
 			},
-			toDetails(Device){
-				uni.navigateTo({
-					url: '../devicesDetails/index'
-				})
-			},
-			addDevices(){
-				uni.navigateTo({
-					url: '../addDevices/index'
-				})
-			}
+
 		}
 	}
 </script>

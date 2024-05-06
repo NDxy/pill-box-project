@@ -19,6 +19,25 @@
 			});
 			await this.BLE.openBluetoothAdapter()
 			this.$isResolve()
+			uni.getSystemInfo({
+				success: (e) => {
+					let statusBar = 0
+					let customBar = 0
+					// #ifdef MP-WEIXIN
+					statusBar = e.statusBarHeight
+					const custom = wx.getMenuButtonBoundingClientRect()
+					customBar = custom.bottom + custom.top - e.statusBarHeight
+					// #endif
+					
+					// #ifdef MP-ALIPAY
+					statusBar = e.statusBarHeight
+					customBar = e.statusBarHeight + e.titleBarHeight
+					// #endif
+					uni.setStorageSync('SET_STATUS_BAR', statusBar)
+					uni.setStorageSync('SET_CUSTOM_BAR', customBar)
+					uni.setStorageSync('SET_SYSTEM_INFO', e)
+				}
+			})
 		},
 		onShow: function() {
 			console.log('App Show')
