@@ -1,23 +1,8 @@
 <template>
 	<view class="content">
-		<view class="header" :style="'padding-top:'+ parseInt(+statusbarHeight) + 'rpx'">
-			<image src="../../static/water.png" mode="scaleToFill"></image>智慧药盒
-		</view>
-		<view class="pill_list">
-			<view class="pill_item" v-for="item in devices" :key="item.NO">
-				<view class="pill_item_box" @click="toDetails">
-					<view class="pill_img">
-						<img src="" alt="">
-					</view>
-					<view class="pill_name">{{item.deviceName}}</view>
-					<view class="pill_NO">{{item.NO}}</view>
-				</view>
-			</view>
-			<view class="pill_item">
-				<view class="pill_item_box add" @click="addDevces">
-					+
-				</view>
-			</view>
+		<view class="setting">
+			<button @click="setBluebooth">设置蓝牙</button>
+			<button @click="setApplication">设置定位</button>
 		</view>
 	</view>
 </template>
@@ -74,7 +59,28 @@
 					})
 				}
 			},
-
+			setBluebooth(){
+				var main = plus.android.runtimeMainActivity();
+				var Intent = plus.android.importClass('android.content.Intent');
+				var mIntent = new Intent('android.settings.BLUETOOTH_SETTINGS');
+				main.startActivity(mIntent);
+			},
+			setApplication(){
+				// var main = plus.android.runtimeMainActivity();
+				// var Intent = plus.android.importClass('android.content.Intent');
+				// var mIntent = new Intent('android.settings.ACTION_APPLICATION_DETAILS_SETTINGS');
+				// main.startActivity(mIntent);
+				
+				var Intent = plus.android.importClass("android.content.Intent");
+				var Settings = plus.android.importClass("android.provider.Settings");
+				var Uri = plus.android.importClass("android.net.Uri");
+				var mainActivity = plus.android.runtimeMainActivity();
+				var intent = new Intent();
+				intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+				var uri = Uri.fromParts("package", mainActivity.getPackageName(), null);
+				intent.setData(uri);
+				mainActivity.startActivity(intent);
+			}
 		}
 	}
 </script>

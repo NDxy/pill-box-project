@@ -1,20 +1,20 @@
 <template>
 	<view class="content">
 		<view class="header" :style="'padding-top:'+ parseInt(+statusbarHeight) + 'rpx'">
-			<image src="../../static/water.png" mode="scaleToFill"></image>智慧药盒
+			<image src="../../static/logo.png" mode="scaleToFill"></image>智慧药盒
 		</view>
 		<view class="pill_list">
 			<view class="pill_item" v-for="item in devices" :key="item.NO">
-				<view class="pill_item_box" @click="toDetails">
-					<view class="pill_img">
-						<img src="" alt="">
+				<view class="pill_item_box" @click="toDetails(item)">
+					<view class="pill_img"> 
+						<img src="../../static/logo.png" alt="">
 					</view>
 					<view class="pill_name">{{item.deviceName}}</view>
 					<view class="pill_NO">{{item.NO}}</view>
 				</view>
 			</view>
 			<view class="pill_item">
-				<view class="pill_item_box add" @click="addDevces">
+				<view class="pill_item_box add" @click="addDevices">
 					+
 				</view>
 			</view>

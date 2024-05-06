@@ -3,8 +3,21 @@
 		{
 			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "uni-app",
+				"navigationBarTitleText": "首页",
 				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/addDevices/index",
+			"style": {
+				"navigationBarTitleText": "查询设备",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/devicesDetails/index",
+			"style": {
+				"navigationBarTitleText": "药盒设置"
 			}
 		}
 	],

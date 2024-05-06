@@ -1,7 +1,7 @@
 <template>
 	<view class="content">
 		<view class="header" :style="'padding-top:'+ parseInt(+statusbarHeight) + 'rpx'">
-			<image src="../../static/water.png" mode="scaleToFill"></image>智慧药盒
+			智慧药盒
 		</view>
 		<view class="pill_list">
 			<view class="pill_item" v-for="item in devices" :key="item.NO">

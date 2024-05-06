@@ -29,6 +29,11 @@
 					customBar = custom.bottom + custom.top - e.statusBarHeight
 					// #endif
 					
+					// #ifdef APP-PLUS
+					statusBar = e.statusBarHeight
+					customBar = e.statusBarHeight + 45
+					// #endif
+					
 					// #ifdef MP-ALIPAY
 					statusBar = e.statusBarHeight
 					customBar = e.statusBarHeight + e.titleBarHeight
