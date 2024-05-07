@@ -1,0 +1,185 @@
+<template>
+	<view class="dialog" :class="{'show_dialog': dialogShow}">
+		<view class="mask"></view>
+		<view class="dialog_box">
+			<view class="dialog_title">
+				{{title}}
+			</view>
+			<view class="dialog_content" v-if="type === 'default'">
+				<slot></slot>
+			</view>
+			<view class="dialog_content" v-else-if="type === 'input'">
+				<view class="input_box">
+					<input :type="inputType" v-model="inputValue" :value="value" @input="inputChange">
+				</view>
+			</view>
+			<view class="btn_box">
+				<view class="btn btn_left" :style="{'color': cancelColor}" @click="cancel">
+					{{cancelText}}
+				</view>
+				<view class="btn btn_right" :style="{'color': confirmColor}" @click="confirm">
+					{{confirmText}}
+				</view>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script>
+	export default {
+		name: 'mo-dialog',
+		props: {
+			title: {
+				type: String,
+				default: '温馨提示',
+			},
+			type: {
+				type: String,
+				default: 'default'
+			},
+			cancelColor: {
+				type: String,
+				default: '#999',
+			},
+			cancelText: {
+				type: String,
+				default: '取消',
+			},
+			confirmColor: {
+				type: String,
+				default: '#00aaff',
+			},
+			confirmText: {
+				type: String,
+				default: '确认',
+			},
+			inputType: {
+				type: String,
+				default: 'text',
+			},
+			value: {
+				type: String,
+				default: '',
+			},
+			dialogShow:{
+				type: Boolean,
+				default: false
+			}
+		},
+		data(){
+			return {
+				inputValue: ''
+			}
+		},
+		watch: {
+			type(newV, oVal){
+				this.inputType = type
+				this.eyes = newV != 'password'
+			},
+			btnRight(newV, oVal){
+				this.btnRightTxt = newV
+			}
+		},
+		mounted() {
+			// uni.showModal({
+			// 	cancelColor: '',
+			// 	cancelText: '',
+			// 	confirmColor: '',
+			// 	confirmText: ''
+			// })
+		},
+		methods: {
+			inputChange(e){
+				this.$emit('input', e.target.value)
+			},
+			showDialog(){
+				this.dialogShow = true
+			},
+			confirm(){
+				let value = ""
+				if(this.type === 'input') value = this.inputValue
+				this.dialogShow = false
+				this.$emit('confirm', value)
+			},
+			cancel(){
+				this.dialogShow = false
+				this.$emit('cancel', null)
+			}
+		}
+	}
+</script>
+
+<style lang="scss" scoped>
+	.dialog{
+		width: 100vw;
+		height: 100vh;
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: -9;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		&.show_dialog{
+			z-index: 999;
+		}
+	}
+	.mask{
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 999;
+		background-color: rgba(0, 0, 0, 0.3);
+	}
+	.dialog_box{
+		width: 80%;
+		padding: 32rpx;
+		background-color: #FFF;
+		border-radius: 24rpx;
+		box-shadow: rgba(0, 0, 0, 0.3) 2rpx 2rpx 2rpx;
+		position: absolute;
+		top: 30%;
+		z-index: 1000;
+	}
+	.dialog_title{
+		text-align: center;
+		font-size: 32rpx;
+		font-weight: 600;
+	}
+	.dialog_content{
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: flex-start;
+		min-height: 100rpx;
+		text-indent: 32rpx;
+		font-size: 32rpx;
+	}
+	.input_box{
+		flex: 1;
+		padding: 12rpx 24rpx;
+		border-bottom: 1rpx solid #eee;
+		input{
+			height: 50rpx;
+			width: 100%;
+		}
+	}
+	.btn_box{
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+	}
+	.btn{
+		height: 100rpx;
+		line-height: 100rpx;
+		flex: 1;
+		text-align: center;
+	}
+</style>

@@ -3,28 +3,27 @@
 		<view class="header" :style="'padding-top:'+ parseInt(+statusbarHeight) + 'rpx'">
 			智慧药盒
 		</view>
-		<view class="pill_list">
-			<view class="pill_item" v-for="item in devices" :key="item.NO">
-				<view class="pill_item_box" @click="toDetails">
-					<view class="pill_img">
-						<img src="" alt="">
-					</view>
-					<view class="pill_name">{{item.deviceName}}</view>
-					<view class="pill_NO">{{item.NO}}</view>
-				</view>
-			</view>
-			<view class="pill_item">
-				<view class="pill_item_box add" @click="addDevces">
-					+
-				</view>
+		<view class="pill_box">
+			<view class=""></view>
+			<mo-input icon="phone" type="text" :showClear="true" placeholder="请输入手机号码/账号名/邮箱" />
+		</view>
+		<view class="search_box">
+			<view class="search_icon blud" @click="findPillBox">
+				<text class="iconfont icon-lanya"></text>
+				<text>寻找药盒</text>
 			</view>
 		</view>
+		<mo-dialog type="input" ref="modelDialog" @confirm="dialogConfirm"/>
 	</view>
 </template>
 
 <script>
 	let _this;
+	import moDialog from '../../components/mo-dialog/mo-dialog.vue';
 	export default {
+		components: {
+			moDialog
+		},
 		data() {
 			return {
 				statusbarHeight: 45,
@@ -47,8 +46,8 @@
 			this.statusbarHeight = uni.getStorageSync('SET_STATUS_BAR') * 2
 			_this = this;
 			await this.$onLaunched
-			this.adapterState = await this.BLE.getBluetoothAdapterState()
-			this.getDeviceList()
+			// this.adapterState = await this.BLE.getBluetoothAdapterState()
+			// this.getDeviceList()
 		},
 		methods: {
 			async getDeviceList() {
@@ -74,7 +73,12 @@
 					})
 				}
 			},
-
+			findPillBox(){
+				this.$refs.modelDialog.showDialog()
+			},
+			dialogConfirm(e){
+				console.log(e)
+			}
 		}
 	}
 </script>
@@ -90,48 +94,6 @@
 		height: 100vh;
 		overflow: auto;
 		background-image: linear-gradient(#7067ff, #4377fd 10%, #f1f5fc 82%);
-	}
-	.pill_list{
-		width: 100vw;
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		justify-content: flex-start;
-		flex-wrap: wrap;
-	}
-	.pill_item{
-		width: calc(100% / 2);
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		justify-content: center;
-		padding: 24rpx;
-		box-sizing: border-box;
-	}
-	.pill_item_box{
-		padding: 24rpx;
-		background-color: #FFF;
-		border-radius: 12rpx;
-		box-shadow: #eee 2rpx 2rpx 6rpx;
-		width: 100%;
-		height: 180rpx;
-		&.add{
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			font-size: 150rpx;
-			color: #999;
-		}
-	}
-	.pill_img{
-		img{
-			width: 120rpx;
-			height: 90rpx;
-		}
-	}
-	.pill_NO{
-		font-size: 20rpx;
-		color: #999;
 	}
 	.header{
 		display: flex;
