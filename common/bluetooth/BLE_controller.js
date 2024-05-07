@@ -61,7 +61,7 @@ class BLEController {
 	static async openBluetoothAdapter(fn) {
 		if (this.adapterOpend) {
 		  console.log("蓝牙适配器已打开,请勿重复操作------》");
-		  return;
+		  return {code: 0, status: true};
 		}
 		this.onBluetoothAdapterStateChange()
 		return new Promise((resolve, reject) => {
@@ -95,7 +95,8 @@ class BLEController {
 					resolve(res)
 				},
 				fail: e => {
-					reject(e)
+					// reject(e)
+					resolve(e)
 					if (e.errCode !== 0) {
 						initTypes(e.errCode,e.errMsg);
 					}
@@ -110,6 +111,7 @@ class BLEController {
 		let _this = this
 		uni.onBluetoothAdapterStateChange(function (res) {
 			// console.log('adapterState changed, now is', res)
+			this.adapterOpend = res.available; 
 			_this.fire('AdapterState', res)
 		})
 	}
@@ -150,7 +152,7 @@ class BLEController {
 		uni.getBluetoothDevices({
 			success: res => {
 				_this.newDeviceLoad = false;
-				console.log('获取蓝牙设备成功:', res);
+				// console.log('获取蓝牙设备成功:', res);
 				let list = res.devices
 				// list = list.filter(i => i.name.indexOf(startWord) != -1);
 				// if(endWord) list = list.filter(i => i.name.indexOf(endWord) != -1);
@@ -177,8 +179,7 @@ class BLEController {
 					}
 					return res
 				})
-				
-				
+				console.log('获取过滤后蓝牙设备成功:', list);
 				_this.deviceList = list
 				_this.fire('getbledevices', _this.deviceList)
 			},
@@ -231,7 +232,7 @@ class BLEController {
 	static createBLEConnection(item) {
 		return new Promise(async (resolve, reject) => {
 			let { deviceId, name } = item;
-			console.log("链接信息：", this.deviceId, this.deviceName)
+			console.log("链接信息：", this.deviceId, this.deviceName, deviceId, name)
 			// 判断当前链接是否重复
 			if(this.deviceId == deviceId){
 				resolve({
@@ -287,16 +288,20 @@ class BLEController {
 	 * 4.2获取蓝牙设备所有服务
 	 */
 	static getBLEDeviceServices(deviceId){
-		uni.getBLEDeviceServices({
-		  // 这里的 deviceId 需要已经通过 createBLEConnection 与对应设备建立链接
-		  deviceId,
-		  success: res => {
-			// console.log('device services:', res.services)
-			let services = this.services = res.services.filter(i => i.isPrimary)
-			// 获取所有特征值
-			this.getBLEDeviceCharacteristics(deviceId, services[0].uuid)
-		  }
-		})
+		
+		setTimeout(() => {
+			uni.getBLEDeviceServices({
+			  // 这里的 deviceId 需要已经通过 createBLEConnection 与对应设备建立链接
+			  deviceId,
+			  success: res => {
+				// console.log('device services:', res.services)
+				let services = this.services = res.services.filter(i => i.isPrimary)
+				// 获取所有特征值
+				console.log('uuid',services[2].uuid)
+				this.getBLEDeviceCharacteristics(deviceId, services[2].uuid)
+			  }
+			})
+		}, 1000)
 	}
 	/**
 	 * 4.3获取蓝牙设备某个服务中所有特征值
@@ -319,6 +324,7 @@ class BLEController {
 				
 				// 该特征是否支持 notify ,indicate操作 ，开启监听订阅特征消息
 				if (i.properties.notify || i.properties.indicate) {
+					console.log('uuid',i.uuid)
 					this.notifyBLECharacteristicValueChange(deviceId, serviceId, i.uuid)
 				}
 			})
@@ -369,11 +375,11 @@ class BLEController {
 	static getBLEauthentication(){
 		// 判断是否已激活
 		if(this.deviceName.indexOf('BLE') != -1){
-			// 设备用水前认证
+			// 设备链接前认证
 			let auth = parseInt(Math.random()* 9999) + ""
 			auth = auth.length < 4 ? pad(auth, 4) : auth
 			// console.log(encryptByDES(auth))
-			this.sendMassage(BT_SND.DEVIDES_AUTH.COMMAND + "_" + auth + "_" + encryptByDES(auth) + "_END")
+			this.sendMassage(BT_SND.DEVIDES_AUTH.COMMAND)
 		}else {
 			// 设备激活前认证
 			const INCOMPLETEGUID = this.deviceName.split('-')[1]
@@ -413,69 +419,6 @@ class BLEController {
 	static changData(data){
 		let msg = "", code = 0, status = false, _this = this
 		this.temporaryData = "";
-		// 设备激活认证信息返回
-		if(data.indexOf("BLE_D_I_") != -1){
-			if(data.indexOf("BLE_D_I_FAIL") != -1){
-				code = 500
-				msg = "蓝牙设备认证错误, 请重新查询并连接"
-				status = false
-				_this.closeBLEConnection()
-			}else {
-				code = 0
-				msg = "蓝牙设备连接并认证成功"
-				status = true
-				_this.guid = data.split("_")[3]
-				// 连接设备后断开搜索 并且不能搜索设备
-				this.deviceLinked = true
-				
-				// TODO: 后续判断是否还需要停止搜索蓝牙设备
-				// this.stopBluetoothDevicesDiscovery(true);
-				clearTimeout(this.timer)
-				// 监听蓝牙连接状态的改变事件
-				this.onBLEConnectionStateChange()
-			}
-			// 触发连接事件，并返回连接认证成功及当前连接的设备
-			_this.fire('connect', {
-				code, msg, status,
-				data: {guid: _this.guid, ..._this.device}
-			});
-		}
-		
-		// 蓝牙激活成功信息返回
-		if(data.indexOf("BLE_D_B") != -1){
-			if(data.indexOf("BLE_D_B_SUCCESS") != -1){
-				code = 0
-				msg = "水控机激活成功"
-				status = true
-			} else {
-				code = 500
-				msg = "水控机激活失败, 请稍后重试"
-				status = false
-			}
-			// 触发激活事件
-			this.fire('init', {
-				code, msg, status,
-				data: {bleVal: data, ..._this.device}
-			})
-		}
-		
-		// 蓝牙重置成功信息返回
-		if(data.indexOf("BLE_D_R") != -1){
-			if(data.indexOf("BLE_D_R_SUCCESS") != -1){
-				code = 0
-				msg = "水控机重置成功"
-				status = true
-			} else {
-				code = 500
-				msg = "水控机重置失败, 请稍后重试"
-				status = false
-			}
-			// 触发重置事件
-			this.fire('reset', {
-				code, msg, status,
-				data: {bleVal: data, ..._this.device}
-			})
-		}
 		
 		// 设备用水认证信息返回
 		if(data.indexOf("BLE_D_A_") != -1){

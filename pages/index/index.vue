@@ -7,7 +7,7 @@
 			<view class="pill_item" v-for="item in devices" :key="item.NO">
 				<view class="pill_item_box" @click="toDetails(item)">
 					<view class="pill_img"> 
-						<img src="../../static/logo.png" alt="">
+						<image src="../../static/logo.png" mode="scaleToFill"></image>
 					</view>
 					<view class="pill_name">{{item.deviceName}}</view>
 					<view class="pill_NO">{{item.NO}}</view>
@@ -29,17 +29,17 @@
 			return {
 				statusbarHeight: 45,
 				devices: [{
-					id: 1233,
+					id: 1111,
 					deviceName: '默认1',
-					NO: 'YH-1233-BLE'
+					NO: 'YH-1111-BLE'
 				},{
-					id: 1233,
+					id: 2222,
 					deviceName: '默认2',
-					NO: 'YH-1233-BLE'
+					NO: 'YH-2222-BLE'
 				},{
-					id: 1233,
+					id: 3333,
 					deviceName: '默认3',
-					NO: 'YH-1233-BLE'
+					NO: 'YH-3333-BLE'
 				}]
 			}
 		},
@@ -47,8 +47,9 @@
 			this.statusbarHeight = uni.getStorageSync('SET_STATUS_BAR') * 2
 			_this = this;
 			await this.$onLaunched
-			this.adapterState = await this.BLE.getBluetoothAdapterState()
-			this.getDeviceList()
+			// this.adapterState = await this.BLE.getBluetoothAdapterState()
+			// console.log(this.adapterState)
+			// this.getDeviceList()
 		},
 		methods: {
 			async getDeviceList() {
@@ -133,10 +134,13 @@
 		}
 	}
 	.pill_img{
-		img{
+		image{
 			width: 120rpx;
 			height: 90rpx;
 		}
+	}
+	.pill_name{
+		font-weight: 600;
 	}
 	.pill_NO{
 		font-size: 20rpx;

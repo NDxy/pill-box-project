@@ -1,0 +1,143 @@
+@font-face {
+  font-family: "iconfont"; /* Project id 3591752 */
+  src: url('~@/static/font/iconfont.woff2?t=1687341595096') format('woff2'),
+       url('~@/static/font/iconfont.woff?t=1687341595096') format('woff'),
+       url('~@/static/font/iconfont.ttf?t=1687341595096') format('truetype');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-jiahao1:before {
+  content: "\e727";
+}
+
+.icon-weixiu:before {
+  content: "\e624";
+}
+
+.icon-weixiudan:before {
+  content: "\e60a";
+}
+
+.icon-kefu2:before {
+  content: "\e60f";
+}
+
+.icon-shezhi:before {
+  content: "\e65e";
+}
+
+.icon-shezhi1:before {
+  content: "\e713";
+}
+
+.icon-shuru:before {
+  content: "\e644";
+}
+
+.icon-saomashuru:before {
+  content: "\e6e1";
+}
+
+.icon-mobile:before {
+  content: "\e672";
+}
+
+.icon-mobile1:before {
+  content: "\e673";
+}
+
+.icon-kefu:before {
+  content: "\e600";
+}
+
+.icon-shezhi2:before {
+  content: "\e669";
+}
+
+.icon-kefu1:before {
+  content: "\e639";
+}
+
+.icon-wode1:before {
+  content: "\e617";
+}
+
+.icon-shouye2:before {
+  content: "\ef5d";
+}
+
+.icon-shouye3:before {
+  content: "\e62a";
+}
+
+.icon-wode2:before {
+  content: "\e69a";
+}
+
+.icon-shurukongjian-shuru:before {
+  content: "\e77c";
+}
+
+.icon-shurukuangbeijingse:before {
+  content: "\e63e";
+}
+
+.icon-wode3:before {
+  content: "\e67d";
+}
+
+.icon-erweima:before {
+  content: "\eca5";
+}
+
+.icon-erweima1:before {
+  content: "\e6bd";
+}
+
+.icon-lanya:before {
+  content: "\e609";
+}
+
+.icon-a-0404_19shoudongshuru:before {
+  content: "\e607";
+}
+
+.icon-me-icon-copy:before {
+  content: "\f5f3";
+}
+
+.icon-service-copy:before {
+  content: "\f5f4";
+}
+
+.icon-home-copy:before {
+  content: "\f5f5";
+}
+
+.icon-yinhangka:before {
+  content: "\e61b";
+}
+
+.icon-shangjiaruzhu:before {
+  content: "\f5f2";
+}
+
+.icon-yinhangka1:before {
+  content: "\e6e8";
+}
+
+.icon-wode:before {
+  content: "\e60e";
+}
+
+.icon-shouye:before {
+  content: "\e7be";
+}
+
