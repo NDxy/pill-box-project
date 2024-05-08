@@ -11,10 +11,11 @@ import {
   ab2hex,
   str2ab,
   initTypes,
-  toast
+  toast,
+  dateFtt
 } from "@/common/bluetooth/BLE_util.js";
 import * as CryptoJS from '@/common/crypto-js/crypto-js';
-import BT_SND from '@/common/bluetooth/command.js'
+import BT_YH from '@/common/bluetooth/command.js'
 
 class BLEController {
 	// 蓝牙适配器开启状态
@@ -110,8 +111,8 @@ class BLEController {
 	static async onBluetoothAdapterStateChange(fn) {
 		let _this = this
 		uni.onBluetoothAdapterStateChange(function (res) {
-			// console.log('adapterState changed, now is', res)
-			this.adapterOpend = res.available; 
+			console.log('adapterState changed, now is', res)
+			_this.adapterOpend = res.available; 
 			_this.fire('AdapterState', res)
 		})
 	}
@@ -273,7 +274,7 @@ class BLEController {
 				fail: e => {
 					uni.hideToast()
 					this.fire('connect', {code: 305, msg: '连接低功耗蓝牙失败，错误码：' + e.errMsg, status: false, ...item});
-					console.log('连接低功耗蓝牙失败，错误码：' + e.errMsg);
+					console.log('连接低功耗蓝牙失败，错误码：' + e.errCode);
 					this.deviceLinked = false
 					this.deviceId = ""
 					this.deviceName = null
@@ -330,6 +331,12 @@ class BLEController {
 			})
 			// 连接认证
 			this.getBLEauthentication()
+			this.syncTime()
+			this.fire('connect', {
+				code: 0, msg: '链接成功！', status: true,
+				data: this.device
+			});
+			
 		  }
 		})
 	}
@@ -379,11 +386,11 @@ class BLEController {
 			let auth = parseInt(Math.random()* 9999) + ""
 			auth = auth.length < 4 ? pad(auth, 4) : auth
 			// console.log(encryptByDES(auth))
-			this.sendMassage(BT_SND.DEVIDES_AUTH.COMMAND)
+			this.sendMassage(BT_YH.DEVIDES_AUTH.COMMAND)
 		}else {
 			// 设备激活前认证
 			const INCOMPLETEGUID = this.deviceName.split('-')[1]
-			this.sendMassage(BT_SND.DEVIDES_INIT.COMMAND + "_" + INCOMPLETEGUID + "_END")
+			this.sendMassage(BT_YH.DEVIDES_INIT.COMMAND + "_" + INCOMPLETEGUID + "_END")
 		}
 	} 
 	/**
@@ -420,9 +427,9 @@ class BLEController {
 		let msg = "", code = 0, status = false, _this = this
 		this.temporaryData = "";
 		
-		// 设备用水认证信息返回
-		if(data.indexOf("BLE_D_A_") != -1){
-			if(data.indexOf("BLE_D_A_FAIL") != -1){
+		// 设备链接认证信息返回
+		if(data.indexOf(BT_YH.DEVIDES_AUTH.D_COMMAND) != -1){
+			if(data.indexOf(BT_YH.DEVIDES_AUTH.D_F_COMMAND) != -1){
 				code = 500
 				msg = "蓝牙设备认证错误, 请重新查询并连接"
 				status = false
@@ -439,6 +446,7 @@ class BLEController {
 				clearTimeout(this.timer)
 				// 监听蓝牙连接状态的改变事件
 				this.onBLEConnectionStateChange()
+				this.syncTime()
 			}
 			// 触发连接事件，并返回连接认证成功及当前连接的设备
 			console.log('设备', _this.device)
@@ -448,20 +456,20 @@ class BLEController {
 			});
 		}
 		
-		// 蓝牙开水请求信息返回
-		if(data.indexOf("BLE_D_O") != -1){
+		// 蓝牙设置闹钟
+		if(data.indexOf(BT_YH.DEVIDES_SET.D_COMMAND) != -1){
 			clearTimeout(this.timer)
-			if(data.indexOf("BLE_D_O_SUCCESS") != -1){
+			if(data.indexOf(BT_YH.DEVIDES_SET.D_S_COMMAND) != -1){
 				code = 0
-				msg = "热水开阀成功"
+				msg = "设置闹钟成功"
 				status = true
 			} else {
 				code = 500
-				msg = "热水开阀失败, 请稍后重试"
+				msg = "设置闹钟失败, 请稍后重试"
 				status = false
 			}
 			// 触发开阀事件
-			this.fire('openWater', {
+			this.fire('setAlarm', {
 				code, msg, status,
 				data: _this.device
 			})
@@ -657,25 +665,6 @@ class BLEController {
 		}
 		sending(0)
 		
-		// for (let i = 0; i < byteLen; i += 20) {
-		// 	let buffer = str2ab(command.slice(pos, pos + 20));
-		// 	// console.log("发送蓝牙分包指令", command.slice(pos, pos + 20))
-		// 	pos += 20;
-		// 	loopCount += 1;
-		// 	uni.writeBLECharacteristicValue({
-		// 	  // 这里的 deviceId 需要在 getBluetoothDevices 或 onBluetoothDeviceFound 接口中获取
-		// 	  deviceId: this.deviceId,
-		// 	  // 这里的 serviceId 需要在 getBLEDeviceServices 接口中获取
-		// 	  serviceId: this.services[0].uuid,
-		// 	  // 这里的 characteristicId 需要在 getBLEDeviceCharacteristics 接口中获取
-		// 	  characteristicId: this.characteristics.uuid,
-		// 	  // 这里的value是ArrayBuffer类型
-		// 	  value: buffer,
-		// 	  success: res => {
-		// 		console.log('writeBLECharacteristicValue success', res.errMsg)
-		// 	  }
-		// 	})
-		// }
 	}
 	/**
 	 * 关闭蓝牙连接
@@ -703,124 +692,69 @@ class BLEController {
 		})
 	}
 	/**
-	 * 设备初始化激活
-	 * @param {object} param 激活参数
+	 * 7.1 时间同步
 	 */
-	static initDevice(param){
-		this.sendMassage(BT_SND.DEVIDES_BIND.COMMAND + "_" + this.guid + "_" + param.deviceNo + "_" + param.code + "_" + param.orgId + "_END")
-		this.removeEvent('init')
-		if (param.success) this.on('init', param.success)
-	}
-	/**
-	 * 设备重置激活
-	 */
-	static resetDevice(){
-		this.removeEvent('reset')
+	static syncTime(){
+		this.removeEvent('syncTime')
 		return new Promise((resolve, reject) => {
-			this.sendMassage(BT_SND.DEVIDES_RESET.COMMAND + "_" + this.deviceACode + "_END")
-			this.on('reset', resolve)
+			const checkNum = addHexFilm(BT_YH.DEVIDES_TIME.COMMAND + "_" + dateFtt('yyyyMMddWhhmmss', new Date()))
+			this.sendMassage(BT_YH.DEVIDES_TIME.COMMAND + "_" + dateFtt('yyyyMMddWhhmmss', new Date()) + "_" + checkNum + "_END")
+			this.on('syncTime', resolve)
 		});
 	}
 	/**
-	 * 设备参数设置
-	 * @param {object} param 单项参数
+	 * 7.2 设置闹钟
+	 * @param {object} param 闹钟的参数
 	 */
-	static async setParam(param){
+	static setAlarm(param){
+		let {id, time, type, videoNo} = param
+		this.removeEvent('setAlarm')
 		return new Promise((resolve, reject) => {
-			setTimeout(() => {
-				const checkNum = addHexFilm(BT_SND.SET_PARAM.COMMAND + "_" + param.key + "_" + param.val)
-				this.sendMassage(BT_SND.SET_PARAM.COMMAND + "_" + param.key + "_" + param.val + "_" + checkNum + "_END")
-			}, 120) 
-			this.on('setParam', resolve)
+			const checkNum = addHexFilm(BT_SND.DEVIDES_SET.COMMAND + "_" + id + "_" + time + "_" + type + "_" + videoNo)
+			this.sendMassage(BT_SND.DEVIDES_SET.COMMAND + "_" + param.key + "_" + param.val + "_" + checkNum + "_END")
+			this.on('setAlarm', resolve)
 		});
 	}
 	/**
-	 * 设置设备参数
-	 * @param {object} param 单项参数
+	 * 7.3 手机请求设备上载设置
 	 */
-	static async setParamDatas(param = {}){
-		let res = await this.setParam(param);
-		return res
-	}
-	/**
-	 * 设备参数批量设置
-	 * @param {String} param 多项参数设置
-	 */
-	static async setAllParam(param){
+	static syncAlarm(){
+		this.removeEvent('syncAlarm')
 		return new Promise((resolve, reject) => {
-			// setTimeout(() => {
-			// 	this.sendMassage(BT_SND.SET_PARAM_ALL.COMMAND + "_" + param + "_END")
-			// }, 120) 
-			const checkNum = addHexFilm(BT_SND.SET_PARAM_ALL.COMMAND + "_" + param)
-			param = BT_SND.SET_PARAM_ALL.COMMAND + "_" + param + "_" + checkNum + "_END";
-			this.sendMassage(param);
-			// let sending = i => {
-			// 	let command = param.slice(i, i+20)
-			// 	setTimeout(() => {
-			// 		this.sendMassage(command);
-			// 		if(i < param.length){
-			// 			i += 20;
-			// 			sending(i);
-			// 		}
-			// 	}, 50) 
-			// }
-			// sending(0)
-			this.on('setAllParam', resolve)
+			this.sendMassage(BT_YH.UP_ALARM.COMMAND)
+			this.on('syncAlarm', resolve)
 		});
 	}
 	/**
-	 * 批量设置设备参数
-	 * @param {String} param 多项参数设置
+	 * 7.4 手机请求删除闹钟
+	 * @param {String, Number} ID 闹钟ID
 	 */
-	static async setAllParamDatas(param = ""){
-		let res = await this.setAllParam(param);
-		return res
-	}
-	/**
-	 * 设备参数获取
-	 */
-	static async queryParam(key){
+	static deleteAlaem(ID){
+		this.removeEvent('delete')
 		return new Promise((resolve, reject) => {
-			setTimeout(() => {
-				// this.sendMassage(BT_SND.QUERY_PARAM.COMMAND + "_" + key + "_END")
-				this.sendMassage(BT_SND.QUERY_PARAM_ALL.COMMAND + "_END")
-			}, 120) 
-			this.on('queryParam', resolve)
+			this.sendMassage(BT_YH.DEVIDES_CLR.COMMAND + "_" + ID + "_END")
+			this.on('delete', resolve)
 		});
 	}
 	/**
-	 * 批量获取设备参数
+	 * 7.5 手机寻找设备终端: 开
 	 */
-	static async queryParamDatas(key){
-		let res = await this.queryParam(key);
-		// return res.param[key]
-		return res.param
-	}
-	/**
-	 * 通过订单获取当前订单设备的状态信息
-	 */
-	static queryStateByOrder(param){
+	static searchDeviceOpen(){
+		this.removeEvent('searchDeviceO')
 		return new Promise((resolve, reject) => {
-			const checkNum = addHexFilm(BT_SND.QUERY_ORDER_STATE.COMMAND + "_" + this.deviceACode + "_" + param.orderNo + "_" + param.payTime)
-			this.sendMassage(BT_SND.QUERY_ORDER_STATE.COMMAND + "_" + this.deviceACode + "_" + param.orderNo + "_" + param.payTime + "_" + checkNum +  "_END")
-			this.on('queryOrder', resolve)
+			this.sendMassage(BT_YH.DEVIDES_SEARCH_OPEN.COMMAND)
+			this.on('searchDeviceO', resolve)
 		});
 	}
 	/**
-	 * 热水开阀
+	 * 7.6 手机寻找设备终端: 关
 	 */
-	static openWater(param){
-		const checkNum = addHexFilm(BT_SND.DEVICES_OPEN.COMMAND + "_" + this.deviceACode + "_" + param.amount + "_" + param.orderNo)
-		this.sendMassage(BT_SND.DEVICES_OPEN.COMMAND + "_" + this.deviceACode + "_" + param.amount + "_" + param.orderNo + "_" + checkNum + "_END")
-		this.removeEvent('openWater')
-		this.timeoutErr("开阀", () => {
-			// 触发开阀事件
-			this.fire('openWater', {
-				code: 408, msg: '开阀超时', status: false,
-				data: this.device
-			})
-		}, 5000)
-		if (param.success) this.on('openWater', param.success)
+	static searchDeviceClose(){
+		this.removeEvent('searchDeviceC')
+		return new Promise((resolve, reject) => {
+			this.sendMassage(BT_YH.DEVIDES_SEARCH_CLOSE.COMMAND)
+			this.on('searchDeviceC', resolve)
+		});
 	}
 	// *******************************添加事件*******************************
 	
@@ -908,6 +842,7 @@ class BLEController {
 		delete this._events[type]
 	}
 	/**
+	 * 超时任务
 	 * @param {String} msg
 	 */
 	static timeoutErr(msg, fn, time, clear = false){

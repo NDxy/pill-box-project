@@ -1,16 +1,22 @@
 <template>
 	<view class="content">
 		<view class="header" :style="'padding-top:'+ parseInt(+statusbarHeight) + 'rpx'">
-			智慧药盒
+			<uni-icons @click="back" style="color: #fefefe;" type="left" size="24"></uni-icons>
+			{{device.deviceName}}
 		</view>
 		<view class="pill_box">
-			<view class=""></view>
-			<mo-input icon="phone" type="text" :showClear="true" placeholder="请输入手机号码/账号名/邮箱" />
+			<view class="pill_box_image">
+				<image src="../../static/logo.png" mode="scaleToFill"></image>
+			</view>
 		</view>
 		<view class="search_box">
 			<view class="search_icon blud" @click="findPillBox">
-				<text class="iconfont icon-lanya"></text>
+				<uni-icons style="color: #c3e4ff;" type="notification-filled" size="32"></uni-icons>
 				<text>寻找药盒</text>
+			</view>
+			<view class="search_icon violet" @click="tolink">
+				<uni-icons style="color: #f5dffe;" type="link" size="32"></uni-icons>
+				<text>链接药盒</text>
 			</view>
 		</view>
 		<mo-dialog type="input" ref="modelDialog" @confirm="dialogConfirm"/>
@@ -18,66 +24,93 @@
 </template>
 
 <script>
+	import LOCATION from '../../common/location/location';
 	let _this;
-	import moDialog from '../../components/mo-dialog/mo-dialog.vue';
 	export default {
-		components: {
-			moDialog
-		},
+		// components: {
+		// 	moDialog
+		// },
 		data() {
 			return {
 				statusbarHeight: 45,
-				devices: [{
-					id: 1233,
-					deviceName: '默认1',
-					NO: 'YH-1233-BLE'
-				},{
-					id: 1233,
-					deviceName: '默认2',
-					NO: 'YH-1233-BLE'
-				},{
-					id: 1233,
-					deviceName: '默认3',
-					NO: 'YH-1233-BLE'
-				}]
+				device: {
+					deviceName: '默认药盒',
+				}
 			}
 		},
-		async onLoad() {
-			this.statusbarHeight = uni.getStorageSync('SET_STATUS_BAR') * 2
+		async onLoad(options) {
 			_this = this;
-			await this.$onLaunched
-			// this.adapterState = await this.BLE.getBluetoothAdapterState()
-			// this.getDeviceList()
+			this.device = JSON.parse(options.device)
+			console.log(options.device)
+			this.statusbarHeight = uni.getStorageSync('SET_STATUS_BAR') * 2
+		},
+		onShow() {
+			setTimeout(() => {
+				this.authorizeLandB()
+			},100)
 		},
 		methods: {
-			async getDeviceList() {
-				const adapterState = await this.BLE.getBluetoothAdapterState()
-				if( adapterState.available ){
-					if( adapterState.discovering ) { // && this.devices.length < 1
-						const list = await this.BLE.getDeviceList()
-						this.devices = list ? list : []
-						console.log("devices: ", this.devices)
-						return
+			// 打开蓝牙
+			setBluebooth(){
+				// var main = plus.android.runtimeMainActivity();
+				// var Intent = plus.android.importClass('android.content.Intent');
+				// var mIntent = new Intent('android.settings.BLUETOOTH_SETTINGS');
+				// main.startActivity(mIntent);
+				const BluetoothAdapter = plus.android.importClass('android.bluetooth.BluetoothAdapter');
+				const blueadapter = BluetoothAdapter.getDefaultAdapter();
+				if (blueadapter != null) {
+					return blueadapter.enable();
+				}
+				
+			},
+			//  授权打开蓝牙和定位
+			async authorizeLandB(){
+				const locationState = this.locationState = await LOCATION()
+				if(locationState){
+					this.BLE.onAdapterState(state => {
+						console.log('state', state)
+						//TODO: 查询到状态后重新加载数据
+					})
+					const adapterRes = await this.BLE.openBluetoothAdapter()
+					if(adapterRes.code == 0){
+						// this.BLE.onAdapterState(state => {
+						// 	console.log('state', state)
+						// })
+						this.adapterState = await this.BLE.getBluetoothAdapterState()
+						this.getDeviceList()
+					}else {
+						uni.showModal({
+							title: '提示',
+							content: '蓝牙尚未打开，请打开蓝牙！',
+							success: ({confirm, cancel}) => {
+								if(confirm){
+									this.setBluebooth()
+								}
+								if(cancel){
+									
+								}
+							}
+						});
 					}
-					uni.showToast({
-						title: '获取设备...',
-						icon: 'loading',
-						duration: '99999',
-						mask: true
-					})
-					this.BLE.startBluetoothDevicesDiscovery('YH', 'BLE')
-					this.BLE.onGetBLEDevices((e)=>{
-						// this.loading = false
-						uni.hideToast()
-						this.devices = e
-					})
 				}
 			},
 			findPillBox(){
-				this.$refs.modelDialog.showDialog()
+				if(this.finding){
+					this.finding = false
+					this.BLE.searchDeviceClose()
+				}else {
+					this.finding = true
+					this.BLE.searchDeviceOpen()
+				}
+			},
+			async tolink(){
+				const connectionDev =  await this.BLE.createBLEConnection(this.device)
 			},
 			dialogConfirm(e){
 				console.log(e)
+			},
+			back(){
+				uni.navigateBack()
 			}
 		}
 	}
@@ -103,11 +136,73 @@
 		font-size: 40rpx;
 		font-weight: 900;
 		color: #FFF;
-		padding-left: 48rpx;
+		padding-left: 12rpx;
 		image{
 			width: 50rpx;
 			height: 50rpx;
 			margin-right: 16rpx;
 		}
+		.header_rBtn{
+			display: flex;
+			align-items: center;
+			position: absolute;
+			height: 100rpx;
+			line-height: 100rpx;
+			font-size: 32rpx;
+			font-weight: 600;
+			right: 32rpx;
+			color: #fefefe;
+		}
 	}
+	.pill_box{
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		.pill_box_image{
+			width: 400rpx;
+			height: 300rpx;
+			image{
+				width: 400rpx;
+				height: 300rpx;
+			}
+		}
+	}
+.search_box{
+	width: 100%;
+	height: 376rpx;
+	margin-bottom: 24rpx;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+	align-items: center;
+	.search_icon {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		width: 160rpx;
+		height: 160rpx;
+		border-radius: 50%;
+		font-size: 30rpx;
+		line-height: 60rpx;
+		&.blud {
+			border: 14rpx solid #c3e4ff;
+			background: linear-gradient(-45deg, #007AFF, rgba(0, 122, 255, 0.5));
+			color: #c3e4ff;
+		}
+		&.indigo {
+			border: 14rpx solid #cdf9ff;
+			background: linear-gradient(-45deg, #0dc8e3, rgba(13, 200, 227, 0.5));
+			color: #cdf9ff;
+		}
+		&.violet {
+			border: 14rpx solid #f5dffe;
+			background: linear-gradient(-45deg, #b94efc, rgba(185, 78, 252, 0.5));
+			color: #f5dffe;
+		}
+		&.loading{
+			animation: load 2s linear 0s infinite;
+		}
+	}
+}
 </style>

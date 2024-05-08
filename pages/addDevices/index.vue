@@ -1,7 +1,7 @@
 <template>
 	<view class="content">
 		<view class="header" :style="'padding-top:'+ parseInt(+statusbarHeight) + 'rpx'">
-			<uni-icons @click="back" type="left" size="22"></uni-icons> <text style="flex: 1;text-align: center;">查询设备</text><text></text>
+			<uni-icons @click="back" style="color: #fefefe;" type="left" size="24"></uni-icons> <text style="flex: 1;text-align: center;">查询设备</text><text></text>
 		</view>
 		<view class="search_box">
 			<view class="search_icon blud" @click="refresh">
@@ -23,6 +23,7 @@
 				</view>
 			</view>
 		</view>
+		<mo-dialog type="input" ref="modelDialog" input-placeholder="请输入设备名称" inputValue="默认设备" @confirm="dialogConfirm"/>
 		<!-- <view class="header" :style="'padding-top:'+ parseInt(+statusbarHeight) + 'rpx'">
 			智慧药盒
 		</view>
@@ -137,11 +138,15 @@
 			async connection(item){
 				const e = await this.BLE.createBLEConnection(item)
 				if(e.code == 0){
-					const devices = uni.getStorageInfoSync('devices') || []
-					const device = e.data
-					devices.push(device)
-					uni.setStorageSync('device', devices)
 					this.device = item
+					const devices = uni.getStorageSync('devices') || []
+					console.log('devices', devices)
+					const devicesfilter = devices.filter(i => i.deviceId === this.device.deviceId)
+					if(devicesfilter.length === 0){
+						this.$refs.modelDialog.showDialog()
+					}else {
+						this.toDetails(devicesfilter[0])
+					}
 				}else {
 					uni.showModal({
 						title: '提示',
@@ -149,6 +154,18 @@
 						showCancel: false
 					});
 				}
+			},
+			dialogConfirm(e){
+				const devices = uni.getStorageSync('devices') || []
+				const device = this.device
+				devices.push({...device, deviceName: e.inputValue})
+				uni.setStorageSync('devices', devices)
+				this.toDetails(device)
+			},
+			toDetails(device){
+				uni.navigateTo({
+					url: '/pages/devicesDetails/index?device=' + JSON.stringify(device)
+				})
 			},
 			back(){
 				uni.navigateBack()
@@ -240,37 +257,36 @@
 	flex-direction: row;
 	justify-content: center;
 	align-items: center;
-		.search_icon {
-			display: flex;
-			flex-direction: column;
-			justify-content: center;
-			align-items: center;
-			width: 220rpx;
-			height: 220rpx;
-			border-radius: 50%;
-			font-size: 32rpx;
-			.iconfont::before{
-				font-size: 80rpx;
-			}
-			&.blud {
-				border: 14rpx solid #c3e4ff;
-				background: linear-gradient(-45deg, #007AFF, rgba(0, 122, 255, 0.5));
-				color: #c3e4ff;
-			}
-			&.indigo {
-				border: 14rpx solid #cdf9ff;
-				background: linear-gradient(-45deg, #0dc8e3, rgba(13, 200, 227, 0.5));
-				color: #cdf9ff;
-			}
-			&.violet {
-				border: 14rpx solid #f5dffe;
-				background: linear-gradient(-45deg, #b94efc, rgba(185, 78, 252, 0.5));
-				color: #f5dffe;
-			}
-			&.loading{
-				animation: load 2s linear 0s infinite;
-			}
+	.search_icon {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		width: 220rpx;
+		height: 220rpx;
+		border-radius: 50%;
+		font-size: 32rpx;
+		.iconfont::before{
+			font-size: 80rpx;
 		}
-	// }
+		&.blud {
+			border: 14rpx solid #c3e4ff;
+			background: linear-gradient(-45deg, #007AFF, rgba(0, 122, 255, 0.5));
+			color: #c3e4ff;
+		}
+		&.indigo {
+			border: 14rpx solid #cdf9ff;
+			background: linear-gradient(-45deg, #0dc8e3, rgba(13, 200, 227, 0.5));
+			color: #cdf9ff;
+		}
+		&.violet {
+			border: 14rpx solid #f5dffe;
+			background: linear-gradient(-45deg, #b94efc, rgba(185, 78, 252, 0.5));
+			color: #f5dffe;
+		}
+		&.loading{
+			animation: load 2s linear 0s infinite;
+		}
+	}
 }
 </style>

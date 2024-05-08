@@ -15,9 +15,17 @@
 			}
 		},
 		{
+			"path": "pages/setting/index",
+			"style": {
+				"navigationBarTitleText": "设置中心",
+				"navigationStyle": "custom"
+			}
+		},
+		{
 			"path": "pages/devicesDetails/index",
 			"style": {
-				"navigationBarTitleText": "药盒设置"
+				"navigationBarTitleText": "药盒设置",
+				"navigationStyle": "custom"
 			}
 		}
 	],

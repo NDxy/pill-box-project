@@ -10,7 +10,7 @@
 			</view>
 			<view class="dialog_content" v-else-if="type === 'input'">
 				<view class="input_box">
-					<input :type="inputType" v-model="inputValue" :value="value" @input="inputChange">
+					<input class="input" :type="inputType" v-model="value" @input="inputChange" :placeholder="inputPlaceholder"/>
 				</view>
 			</view>
 			<view class="btn_box">
@@ -57,28 +57,34 @@
 				type: String,
 				default: 'text',
 			},
-			value: {
+			inputPlaceholder: {
 				type: String,
-				default: '',
-			},
-			dialogShow:{
-				type: Boolean,
-				default: false
+				default: '请输入相关信息',
 			}
+			// value: {
+			// 	type: String,
+			// 	default: '',
+			// },
+			// dialogShow:{
+			// 	type: Boolean,
+			// 	default: false
+			// }
 		},
 		data(){
 			return {
-				inputValue: ''
+				value: '',
+				dialogShow: false
 			}
 		},
 		watch: {
-			type(newV, oVal){
-				this.inputType = type
-				this.eyes = newV != 'password'
-			},
-			btnRight(newV, oVal){
-				this.btnRightTxt = newV
-			}
+			
+			// type(newV, oVal){
+			// 	this.inputType = type
+			// 	this.eyes = newV != 'password'
+			// },
+			// btnRight(newV, oVal){
+			// 	this.btnRightTxt = newV
+			// }
 		},
 		mounted() {
 			// uni.showModal({
@@ -97,13 +103,15 @@
 			},
 			confirm(){
 				let value = ""
-				if(this.type === 'input') value = this.inputValue
+				if(this.type === 'input') value = this.value
 				this.dialogShow = false
-				this.$emit('confirm', value)
+				this.$emit('confirm', {inputValue: value})
+				this.value = ''
 			},
 			cancel(){
 				this.dialogShow = false
 				this.$emit('cancel', null)
+				this.value = ''
 			}
 		}
 	}
@@ -139,20 +147,22 @@
 	}
 	.dialog_box{
 		width: 80%;
-		padding: 32rpx;
+		// padding: 32rpx;
 		background-color: #FFF;
-		border-radius: 24rpx;
-		box-shadow: rgba(0, 0, 0, 0.3) 2rpx 2rpx 2rpx;
+		border-radius: 18rpx;
+		box-shadow: rgba(0, 0, 0, 0.3) 2rpx 2rpx 14rpx;
 		position: absolute;
 		top: 30%;
 		z-index: 1000;
 	}
 	.dialog_title{
 		text-align: center;
-		font-size: 32rpx;
+		font-size: 36rpx;
+		padding: 32rpx;
 		font-weight: 600;
 	}
 	.dialog_content{
+		padding: 32rpx;
 		display: flex;
 		flex-direction: row;
 		align-items: center;
@@ -163,10 +173,17 @@
 	}
 	.input_box{
 		flex: 1;
-		padding: 12rpx 24rpx;
 		border-bottom: 1rpx solid #eee;
-		input{
-			height: 50rpx;
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+		height: 80rpx;
+		.input{
+			padding: 12rpx 24rpx;
+			box-sizing: border-box;
+			outline: none;
+			border: none;
+			height: 80rpx;
 			width: 100%;
 		}
 	}
@@ -175,11 +192,16 @@
 		flex-direction: row;
 		align-items: center;
 		justify-content: space-between;
+		border-top: 0.5rpx solid #eee;
 	}
 	.btn{
 		height: 100rpx;
 		line-height: 100rpx;
 		flex: 1;
 		text-align: center;
+		font-weight: 600;
+		&.btn_left{
+			border-right: 0.5rpx solid #eee;
+		}
 	}
 </style>

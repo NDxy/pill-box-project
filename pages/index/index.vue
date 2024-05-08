@@ -2,6 +2,7 @@
 	<view class="content">
 		<view class="header" :style="'padding-top:'+ parseInt(+statusbarHeight) + 'rpx'">
 			<image src="../../static/logo.png" mode="scaleToFill"></image>智慧药盒
+			<uni-icons @click="toSetting" style="position: absolute; right: 32rpx; color: #fefefe;" type="gear-filled" size="28"></uni-icons>
 		</view>
 		<view class="pill_list">
 			<view class="pill_item" v-for="item in devices" :key="item.NO">
@@ -10,12 +11,13 @@
 						<image src="../../static/logo.png" mode="scaleToFill"></image>
 					</view>
 					<view class="pill_name">{{item.deviceName}}</view>
-					<view class="pill_NO">{{item.NO}}</view>
+					<view class="pill_NO">{{item.name}}</view>
 				</view>
 			</view>
 			<view class="pill_item">
 				<view class="pill_item_box add" @click="addDevices">
 					+
+					<view class="add_text">新增设备</view>
 				</view>
 			</view>
 		</view>
@@ -28,19 +30,7 @@
 		data() {
 			return {
 				statusbarHeight: 45,
-				devices: [{
-					id: 1111,
-					deviceName: '默认1',
-					NO: 'YH-1111-BLE'
-				},{
-					id: 2222,
-					deviceName: '默认2',
-					NO: 'YH-2222-BLE'
-				},{
-					id: 3333,
-					deviceName: '默认3',
-					NO: 'YH-3333-BLE'
-				}]
+				devices: uni.getStorageSync('devices')
 			}
 		},
 		async onLoad() {
@@ -50,6 +40,9 @@
 			// this.adapterState = await this.BLE.getBluetoothAdapterState()
 			// console.log(this.adapterState)
 			// this.getDeviceList()
+		},
+		onShow() {
+			this.devices = uni.getStorageSync('devices')
 		},
 		methods: {
 			async getDeviceList() {
@@ -77,12 +70,17 @@
 			},
 			toDetails(Device){
 				uni.navigateTo({
-					url: '../devicesDetails/index'
+					url: '../devicesDetails/index?device=' + JSON.stringify(Device)
 				})
 			},
 			addDevices(){
 				uni.navigateTo({
 					url: '../addDevices/index'
+				})
+			},
+			toSetting(){
+				uni.navigateTo({
+					url: '../setting/index'
 				})
 			}
 		}
@@ -121,16 +119,21 @@
 	.pill_item_box{
 		padding: 24rpx;
 		background-color: #FFF;
-		border-radius: 12rpx;
-		box-shadow: #eee 2rpx 2rpx 6rpx;
+		border-radius: 24rpx;
+		box-shadow: rgba(18, 135, 239, 0.3) 2rpx 2rpx 6rpx;
 		width: 100%;
-		height: 180rpx;
+		height: 190rpx;
 		&.add{
 			display: flex;
+			flex-direction: column;
 			justify-content: center;
 			align-items: center;
-			font-size: 150rpx;
+			font-size: 100rpx;
 			color: #999;
+			.add_text{
+				padding-top: 12rpx;
+				font-size: 32rpx;
+			}
 		}
 	}
 	.pill_img{
@@ -143,7 +146,7 @@
 		font-weight: 600;
 	}
 	.pill_NO{
-		font-size: 20rpx;
+		font-size: 26rpx;
 		color: #999;
 	}
 	.header{
