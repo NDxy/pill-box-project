@@ -19,6 +19,16 @@
 				<text>链接药盒</text>
 			</view>
 		</view>
+		<view class="tabbar_box">
+			<view class="tabbar_item" @click="findPillBox">
+				<uni-icons style="color: #666;" type="list" size="32"></uni-icons>
+				<text>记录</text>
+			</view>
+			<view class="tabbar_item" @click="tolink">
+				<uni-icons style="color: #666;" type="gear" size="32"></uni-icons>
+				<text>设置</text>
+			</view>
+		</view>
 		<mo-dialog type="input" ref="modelDialog" @confirm="dialogConfirm"/>
 	</view>
 </template>
@@ -203,6 +213,27 @@
 		&.loading{
 			animation: load 2s linear 0s infinite;
 		}
+	}
+}
+
+.tabbar_box{
+	position: absolute;
+	bottom: 0;
+	height: 130rpx;
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	background-color: #FFF;
+	.tabbar_item{
+		height: 130rpx;
+		flex: 1;
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		color: #666;
 	}
 }
 </style>

@@ -380,18 +380,21 @@ class BLEController {
 	 * 4.6 连接蓝牙设备的认证
 	 */
 	static getBLEauthentication(){
-		// 判断是否已激活
-		if(this.deviceName.indexOf('BLE') != -1){
-			// 设备链接前认证
-			let auth = parseInt(Math.random()* 9999) + ""
-			auth = auth.length < 4 ? pad(auth, 4) : auth
-			// console.log(encryptByDES(auth))
-			this.sendMassage(BT_YH.DEVIDES_AUTH.COMMAND)
-		}else {
-			// 设备激活前认证
-			const INCOMPLETEGUID = this.deviceName.split('-')[1]
-			this.sendMassage(BT_YH.DEVIDES_INIT.COMMAND + "_" + INCOMPLETEGUID + "_END")
-		}
+		
+		this.sendMassage(BT_YH.DEVIDES_AUTH.COMMAND)
+		
+		// // 判断是否已激活
+		// if(this.deviceName.indexOf('BLE') != -1){
+		// 	// 设备链接前认证
+		// 	let auth = parseInt(Math.random()* 9999) + ""
+		// 	auth = auth.length < 4 ? pad(auth, 4) : auth
+		// 	// console.log(encryptByDES(auth))
+		// 	this.sendMassage(BT_YH.DEVIDES_AUTH.COMMAND)
+		// }else {
+		// 	// 设备激活前认证
+		// 	const INCOMPLETEGUID = this.deviceName.split('-')[1]
+		// 	this.sendMassage(BT_YH.DEVIDES_AUTH.COMMAND + "_" + INCOMPLETEGUID + "_END")
+		// }
 	} 
 	/**
 	 * 4.7 监听蓝牙连接状态
