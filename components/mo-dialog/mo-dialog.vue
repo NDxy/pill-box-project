@@ -6,7 +6,12 @@
 				{{title}}
 			</view>
 			<view class="dialog_content" v-if="type === 'default'">
-				<slot></slot>
+				<view v-if="content === ''" class="">
+					<slot></slot>
+				</view>
+				<view v-else class="">
+					{{content}}
+				</view>
 			</view>
 			<view class="dialog_content" v-else-if="type === 'input'">
 				<view class="input_box">
@@ -32,6 +37,10 @@
 			title: {
 				type: String,
 				default: '温馨提示',
+			},
+			content: {
+				type: String,
+				default: '',
 			},
 			type: {
 				type: String,
@@ -60,11 +69,11 @@
 			inputPlaceholder: {
 				type: String,
 				default: '请输入相关信息',
-			}
-			// value: {
-			// 	type: String,
-			// 	default: '',
-			// },
+			},
+			inputValue: {
+				type: String,
+				default: '',
+			},
 			// dialogShow:{
 			// 	type: Boolean,
 			// 	default: false
@@ -72,16 +81,15 @@
 		},
 		data(){
 			return {
-				value: '',
+				value: this.inputValue,
 				dialogShow: false
 			}
 		},
 		watch: {
 			
-			// type(newV, oVal){
-			// 	this.inputType = type
-			// 	this.eyes = newV != 'password'
-			// },
+			inputValue(newV, oVal){
+				this.value = newV
+			},
 			// btnRight(newV, oVal){
 			// 	this.btnRightTxt = newV
 			// }
@@ -106,12 +114,12 @@
 				if(this.type === 'input') value = this.value
 				this.dialogShow = false
 				this.$emit('confirm', {inputValue: value})
-				this.value = ''
+				// this.value = ''
 			},
 			cancel(){
 				this.dialogShow = false
 				this.$emit('cancel', null)
-				this.value = ''
+				// this.value = ''
 			}
 		}
 	}
@@ -127,11 +135,13 @@
 		right: 0;
 		bottom: 0;
 		z-index: -9;
+		visibility: hidden;
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		&.show_dialog{
 			z-index: 999;
+			visibility: visible;
 		}
 	}
 	.mask{
@@ -168,7 +178,7 @@
 		align-items: center;
 		justify-content: flex-start;
 		min-height: 100rpx;
-		text-indent: 32rpx;
+		text-indent: 64rpx;
 		font-size: 32rpx;
 	}
 	.input_box{

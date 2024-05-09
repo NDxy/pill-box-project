@@ -23,7 +23,7 @@
 				</view>
 			</view>
 		</view>
-		<mo-dialog type="input" ref="modelDialog" input-placeholder="请输入设备名称" inputValue="默认设备" @confirm="dialogConfirm"/>
+		<mo-dialog type="input" ref="modelDialog" title="请输入名称" input-placeholder="请输入设备名称" :inputValue="dialogValue" @confirm="dialogConfirm"/>
 		<!-- <view class="header" :style="'padding-top:'+ parseInt(+statusbarHeight) + 'rpx'">
 			智慧药盒
 		</view>
@@ -43,7 +43,8 @@
 				statusbarHeight: 45,
 				devices: [],
 				locationState: false,
-				device: null
+				device: null,
+				dialogValue: "智慧药盒"
 			}
 		},
 		async onLoad() {
@@ -143,9 +144,10 @@
 					console.log('devices', devices)
 					const devicesfilter = devices.filter(i => i.deviceId === this.device.deviceId)
 					if(devicesfilter.length === 0){
+						this.dialogValue = item.name
 						this.$refs.modelDialog.showDialog()
 					}else {
-						this.toDetails(devicesfilter[0])
+						this.toDetails({...devicesfilter[0], deviceName: e.inputValue})
 					}
 				}else {
 					uni.showModal({
@@ -157,8 +159,8 @@
 			},
 			dialogConfirm(e){
 				const devices = uni.getStorageSync('devices') || []
-				const device = this.device
-				devices.push({...device, deviceName: e.inputValue})
+				const device = {...this.device, deviceName: e.inputValue}
+				devices.push(device)
 				uni.setStorageSync('devices', devices)
 				this.toDetails(device)
 			},

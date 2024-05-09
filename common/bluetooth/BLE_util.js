@@ -127,6 +127,18 @@ export function initTypes(code, errMsg) {
 			case 10009:
 				toast('Android 系统特有，系统版本低于 4.3 不支持 BLE');
 				break;
+			case 10010:
+				toast('已连接');
+				break;
+			case 10011:
+				toast('配对设备需要配对码');
+				break
+			case 10012:
+				toast('连接超时');
+				break;
+			case 10013:
+				toast('连接 deviceId 为空或者是格式不正确');
+				break;
 			default:
 				toast(errMsg);
 		}

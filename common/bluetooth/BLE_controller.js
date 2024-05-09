@@ -1,6 +1,6 @@
 /**
  * @author 宁显俊
- * @name 申能达蓝牙通讯封装
+ * @name 蓝牙通讯封装
  */
 
 import {
@@ -260,14 +260,14 @@ class BLEController {
 					console.log('连接蓝牙成功:' + res.errMsg);
 					// 获取设备服务
 					this.getBLEDeviceServices(deviceId)
-					uni.showToast({
-						mask: true,
-						title: '连接认证...',
-						icon: 'loading',
-						duration: 99999
-					});
+					// uni.showToast({
+					// 	mask: true,
+					// 	title: '连接认证...',
+					// 	icon: 'loading',
+					// 	duration: 99999
+					// });
 					// 设置超时
-					this.timeoutErr("认证", null, 10000, true)
+					// this.timeoutErr("认证", null, 10000, true)
 					// 触发连接事件
 					this.device = item
 				},
@@ -295,7 +295,7 @@ class BLEController {
 			  // 这里的 deviceId 需要已经通过 createBLEConnection 与对应设备建立链接
 			  deviceId,
 			  success: res => {
-				// console.log('device services:', res.services)
+				console.log('device services:', res.services)
 				let services = this.services = res.services.filter(i => i.isPrimary)
 				// 获取所有特征值
 				console.log('uuid',services[2].uuid)
@@ -314,7 +314,7 @@ class BLEController {
 		  // 这里的 serviceId 需要在 getBLEDeviceServices 接口中获取
 		  serviceId,
 		  success: res => {
-			// console.log('device getBLEDeviceCharacteristics:', res.characteristics)
+			console.log('device getBLEDeviceCharacteristics:', res.characteristics)
 			let characteristics = null
 			res.characteristics.forEach(i => {
 				if(i.properties.write) {
@@ -636,8 +636,8 @@ class BLEController {
 	 * @param {Object} COMMAND // 指令内容
 	 */
 	static sendMassage(command){
-		console.log("发送蓝牙总指令", command)
-		// console.log(this.services, this.deviceId, this.characteristics)
+		// console.log("发送蓝牙总指令", command)
+		console.log(this.services, this.deviceId, this.characteristics)
 		let byteLen = command.length;
 		let pos = 0;
 		let loopCount = 0;
@@ -647,17 +647,21 @@ class BLEController {
 			let buffer = str2ab(command.slice(i, i+20));
 			// console.log("发送的蓝牙分包指令", command.slice(i, i+20))
 			setTimeout(() => {
+				console.log("发送蓝牙指令", command)
 				uni.writeBLECharacteristicValue({
 				  // 这里的 deviceId 需要在 getBluetoothDevices 或 onBluetoothDeviceFound 接口中获取
 				  deviceId: this.deviceId,
 				  // 这里的 serviceId 需要在 getBLEDeviceServices 接口中获取
-				  serviceId: this.services[0].uuid,
+				  serviceId: this.services[2].uuid,
 				  // 这里的 characteristicId 需要在 getBLEDeviceCharacteristics 接口中获取
 				  characteristicId: this.characteristics.uuid,
 				  // 这里的value是ArrayBuffer类型
 				  value: buffer,
 				  success: res => {
 					console.log('writeBLECharacteristicValue success', res.errMsg)
+				  },
+				  fail(err) {
+				  	console.log(err)
 				  }
 				})
 				if(i < command.length){

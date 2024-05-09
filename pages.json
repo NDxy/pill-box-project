@@ -27,6 +27,24 @@
 				"navigationBarTitleText": "药盒设置",
 				"navigationStyle": "custom"
 			}
+		},
+		{
+			"path": "pages/history/index",
+			"style": {
+				"navigationBarTitleText": "用药记录"
+			}
+		},
+		{
+			"path": "pages/alarmSetting/index",
+			"style": {
+				"navigationBarTitleText": "药盒设置"
+			}
+		},
+		{
+			"path": "pages/alarmAdd/index",
+			"style": {
+				"navigationBarTitleText": "设置提醒"
+			}
 		}
 	],
 	"globalStyle": {

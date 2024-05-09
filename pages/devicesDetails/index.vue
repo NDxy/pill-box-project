@@ -20,11 +20,11 @@
 			</view>
 		</view>
 		<view class="tabbar_box">
-			<view class="tabbar_item" @click="findPillBox">
+			<view class="tabbar_item" @click="toHistory">
 				<uni-icons style="color: #666;" type="list" size="32"></uni-icons>
 				<text>记录</text>
 			</view>
-			<view class="tabbar_item" @click="tolink">
+			<view class="tabbar_item" @click="toAlarmSetting">
 				<uni-icons style="color: #666;" type="gear" size="32"></uni-icons>
 				<text>设置</text>
 			</view>
@@ -87,7 +87,7 @@
 						// 	console.log('state', state)
 						// })
 						this.adapterState = await this.BLE.getBluetoothAdapterState()
-						this.getDeviceList()
+						// this.getDeviceList()
 					}else {
 						uni.showModal({
 							title: '提示',
@@ -121,6 +121,16 @@
 			},
 			back(){
 				uni.navigateBack()
+			},
+			toHistory(){
+				uni.navigateTo({
+					url: '../history/index?device=' + JSON.stringify(this.device)
+				})
+			},
+			toAlarmSetting(){
+				uni.navigateTo({
+					url: '../alarmSetting/index?device=' + JSON.stringify(this.device)
+				})
 			}
 		}
 	}
