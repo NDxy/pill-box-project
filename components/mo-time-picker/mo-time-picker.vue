@@ -28,7 +28,10 @@
 					</template>
 				</view>
 			</view>
-			<view class="state disable">{{valueModel}} <uni-icons style="margin-left: 24rpx;" type="right"></uni-icons></view>
+			<view class="state disable">
+				<input class="value align_right" type="text" :value="valueModel" :placeholder="hint" placeholder-class="hint" :disabled="true" @input="onControlInput" />
+				<uni-icons style="margin-left: 24rpx;" type="right"></uni-icons>
+			</view>
 		</view>
 		<view class="popup_box" :class="{ popup_show: showPopup }">
 			<view class="popup_mask" @click="showPopup = false"></view>
@@ -37,13 +40,10 @@
 				<view class="picker">
 					<picker-view :indicator-style="indicatorStyle" v-model="dateValue" @change="bindChange">
 						<picker-view-column>
-							<view class="item" v-for="(item,index) in years" :key="item.value">{{item}}年</view>
+							<view class="item" v-for="(item,index) in hours" :key="item.value">{{item}}时</view>
 						</picker-view-column>
 						<picker-view-column>
-							<view class="item" v-for="(item,index) in months" :key="item.value">{{item}}月</view>
-						</picker-view-column>
-						<picker-view-column>
-							<view class="item" v-for="(item,index) in days" :key="item.value">{{item}}日</view>
+							<view class="item" v-for="(item,index) in minutes" :key="item.value">{{item}}分</view>
 						</picker-view-column>
 					</picker-view>
 				</view>
@@ -96,28 +96,22 @@
         },
 		data() {
 			const date = new Date()
-			const years = []
-			const year = date.getFullYear()
-			const months = []
-			const month = date.getMonth() + 1
-			const days = []
-			const day = date.getDate()
-			for (let i = 1970; i <= date.getFullYear() + 10; i++) {
-				years.push(i)
+			const hours = []
+			const hour = date.getHours()
+			const minutes = []
+			const minute = date.getHours()
+			for (let i = 0; i <= 23; i++) {
+				hours.push(i)
 			}
-			for (let i = 1; i <= 12; i++) {
-				months.push(i)
-			}
-			for (let i = 1; i <= mGetDate(year, month); i++) {
-				days.push(i)
+			for (let i = 0; i <= 59; i++) {
+				minutes.push(i)
 			}
 			return {
-				years,
-				months,
-				days,
+				hours,
+				minutes,
 				datas: {},
 				showPopup: false,
-				dateValue: [years.length - 11, month - 1, day - 1],
+				dateValue: [hour, minute],
 				indicatorStyle: `height: 50px;`
 			};
 		},
@@ -125,29 +119,24 @@
 			_this = this
 			const date = _this.value != '' ? new Date(_this.value) : new Date()
 			// const date = new Date()
-			const year = date.getFullYear()
-			const month = date.getMonth() + 1
-			const day = date.getDate()
-			_this.dateValue = [_this.years.indexOf(year), month - 1, day - 1]
+			const hour = date.getHours()
+			const minute = date.getHours()
+			_this.dateValue = [hour, minute]
 			_this.datas = {
-				value: [year, month, day],
-				textCN: dateFtt("yyyy年MM月dd日", new Date(year + '-' + month + '-' + day))/* year + '年 ' + month + '月 ' + day + '日' */,
-				text: dateFtt("yyyy-MM-dd", new Date(year + '-' + month + '-' + day)),
+				value: [hour, minute],
+				// textCN: dateFtt("yyyy年MM月dd日", new Date(year + '-' + month + '-' + day))/* year + '年 ' + month + '月 ' + day + '日' */,
+				// text: dateFtt("yyyy-MM-dd", new Date(year + '-' + month + '-' + day)),
 			}
 		},
 		methods: {
 			bindChange(e) {
 				const val = e.detail.value
-				const year = this.years[val[0]]
-				const month = this.months[val[1]]
-				const day = this.days[val[2]]
-				if(val.slice(0, 2).join('') != _this.datas.value.slice(0, 2).join('')){
-					this.formatDate(year, month)
-				}
+				const hour = this.hours[val[0]]
+				const month = this.minutes[val[1]]
 				_this.datas = {
 					value: val,
-					textCN: dateFtt("yyyy年MM月dd日", new Date(year + '-' + month + '-' + day)),
-					text: dateFtt("yyyy-MM-dd", new Date(year + '-' + month + '-' + day)),
+					// textCN: dateFtt("yyyy年MM月dd日", new Date(year + '-' + month + '-' + day)),
+					// text: dateFtt("yyyy-MM-dd", new Date(year + '-' + month + '-' + day)),
 				}
 			},
 			confirm() {
@@ -161,13 +150,13 @@
 			onControlInput(e){
 				this.$emit('input', e.detail.value)
 			},
-			formatDate(year, month){
-				let days = []
-				for (let i = 1; i <= mGetDate(year, month); i++) {
-					days.push(i)
-				}
-				this.days = days
-			}
+			// formatDate(year, month){
+			// 	let days = []
+			// 	for (let i = 1; i <= mGetDate(year, month); i++) {
+			// 		days.push(i)
+			// 	}
+			// 	this.days = days
+			// }
 		}
 	}
 	
