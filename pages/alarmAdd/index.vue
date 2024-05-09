@@ -2,6 +2,7 @@
 	<view class="content">
 		<view class="list_box card">
 			<view class="list">
+				<mo-time-picker icon="birthday" hint="请选择生日">生日信息</mo-time-picker>
 				<view class="list_item" @click="showDialog">
 					<view class="msg_info">
 						<view class="list_title">提醒时间</view>

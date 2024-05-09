@@ -636,8 +636,8 @@ class BLEController {
 	 * @param {Object} COMMAND // 指令内容
 	 */
 	static sendMassage(command){
-		// console.log("发送蓝牙总指令", command)
-		console.log(this.services, this.deviceId, this.characteristics)
+		console.log("发送蓝牙总指令", command)
+		// console.log(this.services, this.deviceId, this.characteristics)
 		let byteLen = command.length;
 		let pos = 0;
 		let loopCount = 0;
@@ -647,7 +647,7 @@ class BLEController {
 			let buffer = str2ab(command.slice(i, i+20));
 			// console.log("发送的蓝牙分包指令", command.slice(i, i+20))
 			setTimeout(() => {
-				console.log("发送蓝牙指令", command)
+				// console.log("发送蓝牙指令", command)
 				uni.writeBLECharacteristicValue({
 				  // 这里的 deviceId 需要在 getBluetoothDevices 或 onBluetoothDeviceFound 接口中获取
 				  deviceId: this.deviceId,
@@ -661,7 +661,7 @@ class BLEController {
 					console.log('writeBLECharacteristicValue success', res.errMsg)
 				  },
 				  fail(err) {
-				  	console.log(err)
+				  	// console.log(err)
 				  }
 				})
 				if(i < command.length){

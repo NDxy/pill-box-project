@@ -126,7 +126,7 @@
 			},
 			addAlarm(){
 				uni.navigateTo({
-					url: '../history/index?device=' + JSON.stringify(this.device)
+					url: '../alarmAdd/index?device=' + JSON.stringify(this.device)
 				})
 			}
 		}
