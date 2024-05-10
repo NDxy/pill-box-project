@@ -1,23 +1,5 @@
 <template>
 	<view class="mo_date_picker">
-		<!-- <view class="mo_form_item">
-			<view class="form_item_main" @click="showPopup = true">
-				<view class="icon" v-if="icon != ''">
-					<image :src="'../../static/icon/' + icon + '.png'" mode="scaleToFill"></image>
-				</view>
-				<view class="title">
-					<template>
-						<text>
-							<slot />
-						</text>
-					</template>
-				</view>
-				<input class="value align_right" type="text" :value="valueModel" :placeholder="hint" placeholder-class="hint" :disabled="true" @input="onControlInput" />
-				<view class="icon right_icon">
-					<image :src="'../../static/icon/right.png'" mode="scaleToFill"></image>
-				</view>
-			</view>
-		</view> -->
 		<view class="list_item" @click="showPopup = true">
 			<view class="msg_info">
 				<view class="list_title">
@@ -29,7 +11,7 @@
 				</view>
 			</view>
 			<view class="state disable">
-				<input class="value align_right" type="text" :value="valueModel" :placeholder="hint" placeholder-class="hint" :disabled="true" @input="onControlInput" />
+				<input class="value align_right" type="text" :value="valueModel" :placeholder="hint" placeholder-class="hint" @input="onControlInput" />
 				<uni-icons style="margin-left: 24rpx;" type="right"></uni-icons>
 			</view>
 		</view>
@@ -40,10 +22,10 @@
 				<view class="picker">
 					<picker-view :indicator-style="indicatorStyle" v-model="dateValue" @change="bindChange">
 						<picker-view-column>
-							<view class="item" v-for="(item,index) in hours" :key="item.value">{{item}}时</view>
+							<view class="item" v-for="(item,index) in hours" :key="item">{{item}}时</view>
 						</picker-view-column>
 						<picker-view-column>
-							<view class="item" v-for="(item,index) in minutes" :key="item.value">{{item}}分</view>
+							<view class="item" v-for="(item,index) in minutes" :key="item">{{item}}分</view>
 						</picker-view-column>
 					</picker-view>
 				</view>
@@ -59,7 +41,7 @@
 <script>
 	let _this;
 	export default {
-		name: 'moDatePicker',
+		name: 'moTimePicker',
 		model: {
 			prop: 'value', // 将value作为该组件被使用(被父组件调用)时,v-model能取到的值
 			event: 'input' // emit(触发)input的时候，参数的值就是父组件v-model收到的值。
@@ -99,12 +81,12 @@
 			const hours = []
 			const hour = date.getHours()
 			const minutes = []
-			const minute = date.getHours()
+			const minute = date.getMinutes()
 			for (let i = 0; i <= 23; i++) {
-				hours.push(i)
+				hours.push(i<10 ? '0'+ i : i+'')
 			}
 			for (let i = 0; i <= 59; i++) {
-				minutes.push(i)
+				minutes.push(i<10 ? '0'+ i : i+'')
 			}
 			return {
 				hours,
@@ -120,35 +102,35 @@
 			const date = _this.value != '' ? new Date(_this.value) : new Date()
 			// const date = new Date()
 			const hour = date.getHours()
-			const minute = date.getHours()
+			const minute = date.getMinutes()
 			_this.dateValue = [hour, minute]
 			_this.datas = {
-				value: [hour, minute],
+				value: [hour<10 ? '0'+ hour : hour+'', minute<10 ? '0'+ minute : minute+''],
 				// textCN: dateFtt("yyyy年MM月dd日", new Date(year + '-' + month + '-' + day))/* year + '年 ' + month + '月 ' + day + '日' */,
-				// text: dateFtt("yyyy-MM-dd", new Date(year + '-' + month + '-' + day)),
+				text: hour + '点' + minute + '分'
 			}
 		},
 		methods: {
 			bindChange(e) {
 				const val = e.detail.value
-				const hour = this.hours[val[0]]
-				const month = this.minutes[val[1]]
+				const hour = val[0]<10?'0'+val[0]:val[0]+''
+				const minute = val[1]<10?'0'+val[1]:val[1]+''
 				_this.datas = {
 					value: val,
 					// textCN: dateFtt("yyyy年MM月dd日", new Date(year + '-' + month + '-' + day)),
-					// text: dateFtt("yyyy-MM-dd", new Date(year + '-' + month + '-' + day)),
+					text: hour + '点' + minute + '分'
 				}
 			},
 			confirm() {
 				_this.$emit("change", _this.datas);
-				this.valueModel = _this.datas.text
+				_this.valueModel = _this.datas.text
 				_this.showPopup = false
 			},
 			cancel() {
 				_this.showPopup = false
 			},
 			onControlInput(e){
-				this.$emit('input', e.detail.value)
+				this.$emit('input', e.target.value)
 			},
 			// formatDate(year, month){
 			// 	let days = []
@@ -208,9 +190,15 @@
 		padding: 32rpx 0;
 		border-bottom: 1rpx double #eee;
 		box-sizing: border-box;
+		position: relative;
 		&:last-child{
 			border: none
 		}
+	}
+	.msg_info{
+		width: 100%;
+		position: absolute;
+		z-index: 1;
 	}
 	.list_title{
 		font-weight: 600;
@@ -221,7 +209,12 @@
 	}
 	
 	.state{
+		display: flex;
+		justify-content: flex-end;
 		color: #333;
+		width: 100%;
+		position: relative;
+		z-index: 0;
 		&.disable{
 			color: #999;
 		}
@@ -231,6 +224,9 @@
 		// &.use{
 		// 	color: #79c6f9;
 		// }
+		.align_right{
+			text-align: right;
+		}
 	}
 	
 	.popup_box {

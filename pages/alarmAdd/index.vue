@@ -2,26 +2,20 @@
 	<view class="content">
 		<view class="list_box card">
 			<view class="list">
-				<mo-time-picker icon="birthday" hint="请选择生日">生日信息</mo-time-picker>
-				<view class="list_item" @click="showDialog">
-					<view class="msg_info">
-						<view class="list_title">提醒时间</view>
-					</view>
-					<view class="state">{{alarm.time}} <uni-icons style="margin-left: 24rpx;" type="right"></uni-icons></view>
-				</view>
-				<view class="list_item">
+				<mo-time-picker v-model="alarm.time" icon="birthday" hint="请选择提醒时间">提醒时间</mo-time-picker>
+				<view class="list_item" @click="setNameHandle">
 					<view class="msg_info">
 						<view class="list_title">设备名称</view>
 					</view>
 					<view class="state disable">{{alarm.name}} <uni-icons style="margin-left: 24rpx;" type="right"></uni-icons></view>
 				</view>
-				<view class="list_item">
+				<view class="list_item" @click="showOrg = true">
 					<view class="msg_info">
 						<view class="list_title">播报语音</view>
 					</view>
 					<view class="state disable">{{alarm.video}} <uni-icons style="margin-left: 24rpx;" type="right"></uni-icons></view>
 				</view>
-				<view class="list_item">
+				<view class="list_item" @click="showPlayType = true">
 					<view class="msg_info">
 						<view class="list_title">重复方式</view>
 					</view>
@@ -32,6 +26,8 @@
 		<view class="list_box card card_btn btn_primary" @click="submit">
 			{{alarm.alarmId == '' ? '完成新增' : '修改保存'}}
 		</view>
+		<custom-popup-checkbox title="选择重复方式" ref="popupOrg" v-model="showPlayType" :range="playTypeRange" @change="changePlayType"></custom-popup-checkbox>
+		<custom-popup-radio title="选择播报语音" ref="popupOrg" v-model="showOrg" :range="videoRange" @change="changeVideo"></custom-popup-radio>
 		<mo-dialog :type="diaType" ref="modelDialog" :content="diaContent" :confirm-color="diaConfirmColor" :input-value="alarm.name" :title="diaTitle" input-placeholder="请输入设备名称" @confirm="dialogConfirm"/>
 	</view>
 </template>
@@ -54,19 +50,74 @@
 				diaTitle: '温馨提示',
 				diaType: 'default',
 				diaContent: "",
-				diaConfirmColor: '#dd524d'
+				diaConfirmColor: '#dd524d',
+				showOrg: false,
+				showPlayType: false,
+				playTypeRange:[{
+					value:'1',
+					text: '星期一'
+					},{
+					value:'2',
+					text: '星期二'
+					},{
+					value:'3',
+					text: '星期三'
+					},{
+					value:'4',
+					text: '星期四'
+					},{
+					value:'5',
+					text: '星期五'
+					},{
+					value:'6',
+					text: '星期六'
+					},{
+					value:'7',
+					text: '星期日'
+				}],
+				
+				videoRange:[{
+					value:'1',
+					text: '语言1'
+					},{
+					value:'2',
+					text: '语言2'
+					},{
+					value:'3',
+					text: '语言3'
+					},{
+					value:'4',
+					text: '语言4'
+					},{
+					value:'5',
+					text: '语言5'
+					},{
+					value:'6',
+					text: '语言6'
+				}]
 			}
 		},
 		async onLoad(options) {
 			_this = this;
 			// this.alarm = JSON.parse(options.alarm)
-			this.device = JSON.parse(options.device)
+			// this.device = JSON.parse(options.device)
 		},
 		methods: {
+			
 			showDialog(){
 				this.$refs.modelDialog.showDialog()
 			},
 			dialogConfirm(e){},
+			setNameHandle(){
+				this.showDialog()
+				this.diaTitle = '设置名称'
+				this.diaType = 'input'
+				this.diaConfirmColor = '#00aaff'
+				this.dialogConfirm = this.setName
+			},
+			setName(e){
+				this.alarm.name = e.inputValue
+			},
 			submit(){
 				this.showDialog()
 				this.diaTitle = '温馨提示'
@@ -74,6 +125,10 @@
 				this.diaContent = `当前添加`
 				this.diaConfirmColor = '#dd524d'
 				this.dialogConfirm = this.saveAlarm
+			},
+			changeVideo(e){
+				this.alarm.videoId = e.value
+				this.alarm.video = e.text
 			},
 			saveAlarm(){
 				uni.setStorageSync(this.device.deviceId + '__deviceAlarm')
