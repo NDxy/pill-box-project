@@ -4,10 +4,10 @@
 		<view class="popup_content">
 			<text class="popup_share_title">{{title}}</text>
 			<scroll-view scroll-y="true" class="schoolList" @scrolltolower="scroll">
-				<checkbox-group v-if="range.length>0" @change="changeItem">
-					<label v-for="(item,index) in range" :key="index" class="item">
+				<checkbox-group v-if="rangeData.length>0" @change="changeItem">
+					<label v-for="(item,index) in rangeData" :key="index" class="item">
 						<text>{{item[rangeKey]}}</text>
-						<checkbox  color="#007AFF" :value="item.value+''" :checked="indexValue == item.value"/>
+						<checkbox  color="#007AFF" :value="item.value+''" :checked="item.checked"/>
 					</label>
 				</checkbox-group>
 				<view v-else class="no-content">
@@ -16,7 +16,7 @@
 			</scroll-view>
 			<view class="popup_share_btn">
 				<text class="" @click="showPopup = false;">取消</text>
-				<text class="" @click="showPopup = false;">确认</text>
+				<!-- <text class="" @click="showPopup = false;">确认</text> -->
 			</view>
 		</view>
 	</view>
@@ -27,7 +27,7 @@
 	 * @Author: NXJ
 	 */
 	export default {
-		name: 'CustomPopupRadio',
+		name: 'CustomPopupCheckbox',
 		props: {
 			value: {
 				type: [Boolean, String],
@@ -50,15 +50,12 @@
 			return {
 				showPopup: false,
 				popupTitle: '请选择',
-				itemName: '',
-				timer: null,
 				indexValue: '',
 				totalList: [],
-				speedNum: 50,
-				numCount: 0,
 				currentPage: 1,
 				pageSize: 20,
-				searchValue: ''
+				searchValue: '',
+				rangeData:this.range
 			};
 		},
 		watch: {
@@ -71,13 +68,8 @@
 			showPopup(newVal){
 				this.$emit("input",newVal);
 			},
-			searchValue(newValue, oldValue) {
-				if(newValue != oldValue) {
-					this.currentPage = 1
-					this.range = []
-				} else if(newValue == '') {
-					this.currentPage = 1
-				}
+			range(newVal){
+				this.rangeData = newVal
 			}
 		},
 		mounted() {
@@ -87,28 +79,27 @@
 			scroll() {
 				this.currentPage += 1
 				this.getList(this.searchValue)
-				// this.numCount += 1
-				// this.popupList = this.popupList.concat(this.totalList.slice(this.speedNum*this.numCount, this.speedNum*(Number(this.numCount) + 1)));
 			},
 			changeItem(e) {
-				// const items = this.range.filter(item => {
-				// 	return item.value == e.detail.value
-				// })[0]
-				// this.itemName = '';
-				// this.indexValue = e.detail.value
-				// // this.showPopup = false;
-				// this.$emit('change', { ...items })
 				
-				let items = this.range,
-					values = e.detail.value;
+				let items = this.rangeData,
+					values = e.detail.value,
+					textValues = ''
 				for (var i = 0, lenI = items.length; i < lenI; ++i) {
 					const item = items[i]
 					if(values.includes(item.value)){
+						textValues += ' ' + item.text
 						this.$set(item,'checked',true)
 					}else{
 						this.$set(item,'checked',false)
 					}
 				}
+				this.indexValue = values
+				const bit = items.reduceRight((accumu, current) => {
+					return (typeof accumu == 'string' ? accumu : +accumu.checked) + '' + (+current.checked)
+				})
+				textValues = bit === '1111111' ? '每天' : textValues
+				this.$emit('change', {values: values, bit, textValues } )
 			},
 			clearItem() {
 				this.indexValue = ''

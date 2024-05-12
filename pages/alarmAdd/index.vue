@@ -19,7 +19,7 @@
 					<view class="msg_info">
 						<view class="list_title">重复方式</view>
 					</view>
-					<view class="state disable">{{alarm.alarmType}} <uni-icons style="margin-left: 24rpx;" type="right"></uni-icons></view>
+					<view class="state disable">{{alarm.playType}} <uni-icons style="margin-left: 24rpx;" type="right"></uni-icons></view>
 				</view>
 			</view>
 		</view>
@@ -34,6 +34,7 @@
 
 <script>
 	let _this;
+	import { randomNum } from '../../common/bluetooth/BLE_util.js';
 	export default {
 		data() {
 			return {
@@ -43,10 +44,11 @@
 					name: '',
 					video: '',
 					videoId: '',
-					alarmType: ''
+					playTypeBit: '',
+					playType: ''
 				},
+				deviceAlarmList: [],
 				device:{},
-				
 				diaTitle: '温馨提示',
 				diaType: 'default',
 				diaContent: "",
@@ -75,7 +77,6 @@
 					value:'7',
 					text: '星期日'
 				}],
-				
 				videoRange:[{
 					value:'1',
 					text: '语言1'
@@ -99,11 +100,25 @@
 		},
 		async onLoad(options) {
 			_this = this;
+			this.device = JSON.parse(options.device)
+			this.deviceAlarmList = uni.getStorageSync(this.device.deviceId + '__deviceAlarm')
+			if(options.alarm){
+				this.alarm = JSON.parse(options.alarm)
+			}else {
+				this.getAlarmId()
+			}
 			// this.alarm = JSON.parse(options.alarm)
-			// this.device = JSON.parse(options.device)
 		},
 		methods: {
-			
+			getAlarmId(){
+				const alarmId = randomNum(4)
+				const alarmr = this.deviceAlarmList.filter(i => i.alarmId === alarmId)
+				if(alarmr.length > 0) {
+					this.getAlarmId()
+					return
+				}
+				this.alarm.alarmId = alarmId
+			},
 			showDialog(){
 				this.$refs.modelDialog.showDialog()
 			},
@@ -120,18 +135,35 @@
 			},
 			submit(){
 				this.showDialog()
-				this.diaTitle = '温馨提示'
-				this.diaType = 'default'
-				this.diaContent = `当前添加`
-				this.diaConfirmColor = '#dd524d'
-				this.dialogConfirm = this.saveAlarm
+				if(this.alarm.time == '' || this.alarm.name =='' || this.alarm.playType =='' || this.alarm.videoId ==''){
+					this.diaTitle = '温馨提示'
+					this.diaType = 'default'
+					this.diaContent = `请填写选择完整提醒信息！`
+					this.diaConfirmColor = '#00aaff'
+					this.dialogConfirm = ()=>{}
+				}else {
+					this.diaTitle = '温馨提示'
+					this.diaType = 'default'
+					this.diaContent = `您当前即将添加${this.alarm.playType} ${this.alarm.time} 名称为“${this.alarm.name}”的提醒`
+					this.diaConfirmColor = '#00aaff'
+					this.dialogConfirm = this.saveAlarm
+				}
 			},
 			changeVideo(e){
 				this.alarm.videoId = e.value
 				this.alarm.video = e.text
 			},
+			changePlayType(e){
+				console.log(e)
+				this.alarm.playTypeBit = '0'+e.bit
+				this.alarm.playType = e.textValues
+			},
 			saveAlarm(){
-				uni.setStorageSync(this.device.deviceId + '__deviceAlarm')
+				console.log(this.deviceAlarmList)
+				const newDeviceAlarm = this.deviceAlarmList.filter(i => i.alarmId !== this.alarm.alarmId )
+				newDeviceAlarm.push(this.alarm)
+				this.deviceAlarmList = newDeviceAlarm
+				uni.setStorageSync(this.device.deviceId + '__deviceAlarm', newDeviceAlarm)
 			}
 		}
 	}
@@ -190,6 +222,7 @@
 		}
 	}
 	.list_title{
+		width: 140rpx;
 		font-weight: 600;
 	}
 	.list_content{
@@ -198,6 +231,8 @@
 	}
 	
 	.state{
+		display: flex;
+		align-items: center;
 		color: #333;
 		&.disable{
 			color: #999;

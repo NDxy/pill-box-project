@@ -43,6 +43,7 @@
 		},
 		onShow() {
 			this.devices = uni.getStorageSync('devices')
+			console.log(this.devices)
 		},
 		methods: {
 			async getDeviceList() {

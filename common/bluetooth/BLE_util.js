@@ -9,6 +9,14 @@ export function uuid2Mac(advertisData) {
     return mac;
   }
 }
+// 随机数
+export function randomNum(n){
+  let res = "";
+  for(let i=0;i<n;i++){
+    res += Math.floor(Math.random()*10);
+  }
+  return res;
+}
 
 // 新设备去重
 export function inArray(arr, key, val) {

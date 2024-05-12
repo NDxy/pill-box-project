@@ -107,7 +107,8 @@
 			_this.datas = {
 				value: [hour<10 ? '0'+ hour : hour+'', minute<10 ? '0'+ minute : minute+''],
 				// textCN: dateFtt("yyyy年MM月dd日", new Date(year + '-' + month + '-' + day))/* year + '年 ' + month + '月 ' + day + '日' */,
-				text: hour + '点' + minute + '分'
+				// text: hour + '点' + minute + '分'
+				text: hour + ':' + minute
 			}
 		},
 		methods: {
@@ -118,7 +119,8 @@
 				_this.datas = {
 					value: val,
 					// textCN: dateFtt("yyyy年MM月dd日", new Date(year + '-' + month + '-' + day)),
-					text: hour + '点' + minute + '分'
+					// text: hour + '点' + minute + '分'
+					text: hour + ':' + minute
 				}
 			},
 			confirm() {

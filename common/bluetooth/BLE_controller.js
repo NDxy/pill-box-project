@@ -714,11 +714,11 @@ class BLEController {
 	 * @param {object} param 闹钟的参数
 	 */
 	static setAlarm(param){
-		let {id, time, type, videoNo} = param
+		let {alarmId, time, playTypeBit, videoId} = param
 		this.removeEvent('setAlarm')
 		return new Promise((resolve, reject) => {
-			const checkNum = addHexFilm(BT_SND.DEVIDES_SET.COMMAND + "_" + id + "_" + time + "_" + type + "_" + videoNo)
-			this.sendMassage(BT_SND.DEVIDES_SET.COMMAND + "_" + param.key + "_" + param.val + "_" + checkNum + "_END")
+			const checkNum = addHexFilm(BT_SND.DEVIDES_SET.COMMAND + "_" + alarmId + "_" + time.replace(':', '') + "_" + playTypeBit + "_" + videoId)
+			this.sendMassage(BT_SND.DEVIDES_SET.COMMAND + "_" + alarmId + "_" + time.replace(':', '') + "_" + playTypeBit + "_" + videoId + "_" + checkNum + "_END")
 			this.on('setAlarm', resolve)
 		});
 	}
