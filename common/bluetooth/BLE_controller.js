@@ -330,7 +330,7 @@ class BLEController {
 				}
 			})
 			// 连接认证
-			this.getBLEauthentication()
+			// this.getBLEauthentication()
 			this.syncTime()
 			this.fire('connect', {
 				code: 0, msg: '链接成功！', status: true,
@@ -647,7 +647,7 @@ class BLEController {
 			let buffer = str2ab(command.slice(i, i+20));
 			// console.log("发送的蓝牙分包指令", command.slice(i, i+20))
 			setTimeout(() => {
-				// console.log("发送蓝牙指令", command)
+				console.log("发送蓝牙指令", command)
 				uni.writeBLECharacteristicValue({
 				  // 这里的 deviceId 需要在 getBluetoothDevices 或 onBluetoothDeviceFound 接口中获取
 				  deviceId: this.deviceId,
@@ -717,8 +717,8 @@ class BLEController {
 		let {alarmId, time, playTypeBit, videoId} = param
 		this.removeEvent('setAlarm')
 		return new Promise((resolve, reject) => {
-			const checkNum = addHexFilm(BT_SND.DEVIDES_SET.COMMAND + "_" + alarmId + "_" + time.replace(':', '') + "_" + playTypeBit + "_" + videoId)
-			this.sendMassage(BT_SND.DEVIDES_SET.COMMAND + "_" + alarmId + "_" + time.replace(':', '') + "_" + playTypeBit + "_" + videoId + "_" + checkNum + "_END")
+			const checkNum = addHexFilm(BT_YH.DEVIDES_SET.COMMAND + "_" + alarmId + "_" + time.replace(':', '') + "_" + playTypeBit + "_" + videoId)
+			this.sendMassage(BT_YH.DEVIDES_SET.COMMAND + "_" + alarmId + "_" + time.replace(':', '') + "_" + playTypeBit + "_" + videoId + "_" + checkNum + "_END")
 			this.on('setAlarm', resolve)
 		});
 	}

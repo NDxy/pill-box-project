@@ -30,11 +30,11 @@
 				提醒任务列表
 			</view>
 			<view class="list" v-if="deviceAlarm.length">
-				<view class="list_item" v-for="item in deviceAlarm" @click="showDialog">
+				<view class="list_item" v-for="item in deviceAlarm" @click="setAlarm(item)">
 					<view class="msg_info">
-						<view class="list_title">名称：{{item.alarmName}}</view>
-						<view class="list_content">{{item.alarmType}}|{{item.alarmTime}}</view>
-						<view class="list_content">语音内容:{{item.videoName}}</view>
+						<view class="list_title">名称：{{item.name}}</view>
+						<view class="list_content">{{item.playType}}|{{item.time}}</view>
+						<view class="list_content">语音内容:{{item.video}}</view>
 					</view>
 					<!-- <view class="state">{{item.alarmTime}}</view> <switch checked="true" @change="" />
 					<view class="state">{{device.deviceName}}</view> <switch checked="true" @change="" /> -->
@@ -75,6 +75,7 @@
 			this.device = JSON.parse(options.device)
 			this.deviceList = uni.getStorageSync('devices')
 			this.deviceAlarm = uni.getStorageSync(this.device.deviceId + '__deviceAlarm')
+			console.log(this.deviceAlarm)
 		},
 		methods: {
 			dialogConfirm(e){},
@@ -127,6 +128,11 @@
 			addAlarm(){
 				uni.navigateTo({
 					url: '../alarmAdd/index?device=' + JSON.stringify(this.device)
+				})
+			},
+			setAlarm(alarm){
+				uni.navigateTo({
+					url: '../alarmAdd/index?device=' + JSON.stringify(this.device) + '&alarm=' + JSON.stringify(alarm)
 				})
 			}
 		}

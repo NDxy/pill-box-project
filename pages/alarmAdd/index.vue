@@ -24,7 +24,10 @@
 			</view>
 		</view>
 		<view class="list_box card card_btn btn_primary" @click="submit">
-			{{alarm.alarmId == '' ? '完成新增' : '修改保存'}}
+			{{!settingAlarm ? '完成新增' : '修改保存'}}
+		</view>
+		<view v-if="settingAlarm" class="list_box card card_btn btn_warning" @click="delAlarmHandler">
+			删除提醒
 		</view>
 		<custom-popup-checkbox title="选择重复方式" ref="popupOrg" v-model="showPlayType" :range="playTypeRange" @change="changePlayType"></custom-popup-checkbox>
 		<custom-popup-radio title="选择播报语音" ref="popupOrg" v-model="showOrg" :range="videoRange" @change="changeVideo"></custom-popup-radio>
@@ -55,6 +58,7 @@
 				diaConfirmColor: '#dd524d',
 				showOrg: false,
 				showPlayType: false,
+				settingAlarm: false,
 				playTypeRange:[{
 					value:'1',
 					text: '星期一'
@@ -102,8 +106,10 @@
 			_this = this;
 			this.device = JSON.parse(options.device)
 			this.deviceAlarmList = uni.getStorageSync(this.device.deviceId + '__deviceAlarm')
+			console.log(this.deviceAlarmList)
 			if(options.alarm){
 				this.alarm = JSON.parse(options.alarm)
+				this.settingAlarm = true
 			}else {
 				this.getAlarmId()
 			}
@@ -112,7 +118,7 @@
 		methods: {
 			getAlarmId(){
 				const alarmId = randomNum(4)
-				const alarmr = this.deviceAlarmList.filter(i => i.alarmId === alarmId)
+				const alarmr = this.deviceAlarmList.length > 0 ? this.deviceAlarmList.filter(i => i.alarmId === alarmId) : []
 				if(alarmr.length > 0) {
 					this.getAlarmId()
 					return
@@ -146,8 +152,16 @@
 					this.diaType = 'default'
 					this.diaContent = `您当前即将添加${this.alarm.playType} ${this.alarm.time} 名称为“${this.alarm.name}”的提醒`
 					this.diaConfirmColor = '#00aaff'
-					this.dialogConfirm = this.saveAlarm
+					this.dialogConfirm = this.saveAlarm 
 				}
+			},
+			delAlarmHandler(){
+				this.showDialog()
+				this.diaTitle = '删除警告'
+				this.diaType = 'default'
+				this.diaContent = `您即将删除${this.alarm.playType} ${this.alarm.time} 名称为“${this.alarm.name}”的提醒！删除之后，次时间将不会再提醒您用药，确定删除吗！！？？`
+				this.diaConfirmColor = '#dd524d'
+				this.dialogConfirm = this.delAlarm
 			},
 			changeVideo(e){
 				this.alarm.videoId = e.value
@@ -158,12 +172,34 @@
 				this.alarm.playTypeBit = '0'+e.bit
 				this.alarm.playType = e.textValues
 			},
-			saveAlarm(){
-				console.log(this.deviceAlarmList)
-				const newDeviceAlarm = this.deviceAlarmList.filter(i => i.alarmId !== this.alarm.alarmId )
+			async saveAlarm(){
+				
+				const newDeviceAlarm = this.deviceAlarmList.length > 0 ? this.deviceAlarmList.filter(i => i.alarmId !== this.alarm.alarmId ) : []
 				newDeviceAlarm.push(this.alarm)
 				this.deviceAlarmList = newDeviceAlarm
 				uni.setStorageSync(this.device.deviceId + '__deviceAlarm', newDeviceAlarm)
+				const setRes = await this.BLE.setAlarm({ ...this.alarm, playTypeBit: parseInt(this.alarm.playTypeBit, 2) })
+				if(setRes.code == 0){
+				}else {
+					this.diaTitle = '温馨提示'
+					this.diaType = 'default'
+					this.diaContent = `药盒提醒设置失败，${setRes.msg}`
+					this.diaConfirmColor = '#00aaff'
+					this.dialogConfirm = ()=>{}
+				}
+			},
+			async delAlarm(){
+				const newDeviceAlarm = this.deviceAlarmList.filter(i => i.alarmId !== this.alarm.alarmId )
+				uni.setStorageSync(this.device.deviceId + '__deviceAlarm', newDeviceAlarm)
+				const setRes = await this.BLE.deleteAlaem(this.alarm.alarmId)
+				if(setRes.code == 0){
+				}else {
+					this.diaTitle = '温馨提示'
+					this.diaType = 'default'
+					this.diaContent = `药盒提醒删除失败，${setRes.msg}`
+					this.diaConfirmColor = '#00aaff'
+					this.dialogConfirm = ()=>{}
+				}
 			}
 		}
 	}
