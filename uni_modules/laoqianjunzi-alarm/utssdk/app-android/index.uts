@@ -1,0 +1,163 @@
+import {
+	UTSAndroid
+} from "io.dcloud.uts";
+
+import { AddParams, AddOptions, DeleteParams, DeleteOptions, Results } from "../interface.uts"
+import Intent from 'android.content.Intent';
+import AlarmClock from 'android.provider.AlarmClock';
+import Uri from 'android.net.Uri';
+import Activity from 'android.app.Activity';
+import ActivityCompat from "androidx.core.app.ActivityCompat";
+import Manifest from "android.Manifest";
+
+import Context from 'android.content.Context';
+import ContentUris from 'android.content.ContentUris';
+import ContentValues from 'android.content.ContentValues';
+import Color from 'android.graphics.Color';
+import Cursor from 'android.database.Cursor';
+
+import CalendarContract from 'android.provider.CalendarContract';
+import Calendar from 'java.util.Calendar';
+import TimeZone from 'java.util.TimeZone';
+import PackageManager from "android.content.pm.PackageManager";
+import TextUtils from 'android.text.TextUtils';
+
+import ArrayList from 'java.util.ArrayList';
+import Int from 'kotlin.Int';
+class AlarmUtils {
+
+	/**
+	 * 添加闹钟事件
+	 */
+	addEvent(params : AddParams) {
+		console.log("addEvent");
+		let clock_name : string = params.name;
+		let clock_hour : number = params.hour;
+		let clock_minutes : number = params.minutes;
+		let clock_ringtone : string = params.ringtone;
+		let clock_weekdays : string = params.weekday
+		let intent : Intent = new Intent(AlarmClock.ACTION_SET_ALARM);
+
+		intent.putExtra(AlarmClock.EXTRA_HOUR, clock_hour);
+		intent.putExtra(AlarmClock.EXTRA_MINUTES, clock_minutes);
+		intent.putExtra(AlarmClock.EXTRA_MESSAGE, clock_name);
+		intent.putExtra(AlarmClock.EXTRA_VIBRATE, true);
+		intent.putExtra(AlarmClock.EXTRA_SKIP_UI, true);
+
+		if (TextUtils.isEmpty(clock_ringtone)) {
+			intent.putExtra(AlarmClock.VALUE_RINGTONE_SILENT, true);
+		} else {
+			intent.putExtra(AlarmClock.EXTRA_RINGTONE, clock_ringtone);
+		}
+
+		if (!TextUtils.isEmpty(clock_weekdays)) {
+			let clock_days : ArrayList<Int> = new ArrayList<Int>();
+			if (TextUtils.indexOf(clock_weekdays, '1') !== -1) {
+				clock_days.add(Calendar.MONDAY);//周一
+			}
+			if (TextUtils.indexOf(clock_weekdays, '2') !== -1) {
+				clock_days.add(Calendar.TUESDAY);//周二
+			}
+			if (TextUtils.indexOf(clock_weekdays, '3') !== -1) {
+				clock_days.add(Calendar.WEDNESDAY);//周三
+			}
+			if (TextUtils.indexOf(clock_weekdays, '4') !== -1) {
+				clock_days.add(Calendar.THURSDAY);//周四
+			}
+			if (TextUtils.indexOf(clock_weekdays, '5') !== -1) {
+				clock_days.add(Calendar.FRIDAY);//周五
+			}
+			if (TextUtils.indexOf(clock_weekdays, '6') !== -1) {
+				clock_days.add(Calendar.SATURDAY);//周六
+			}
+			if (TextUtils.indexOf(clock_weekdays, '7') !== -1) {
+				clock_days.add(Calendar.SUNDAY);//周日
+			}
+			intent.putExtra(AlarmClock.EXTRA_DAYS, clock_days);
+		}
+
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+		let packageManager = UTSAndroid.getUniActivity()!.getPackageManager();
+		var component = intent.resolveActivity(packageManager);
+		if (component != null) {
+			UTSAndroid.getUniActivity()!.startActivity(intent);
+		}
+	}
+	/**
+	 * 删除事件
+	 */
+	deleteEvent() {
+		let clock_name : string = 'dida';
+		var hour = '05';
+		var minutes = '40';
+		let intent : Intent = new Intent(AlarmClock.ACTION_DISMISS_ALARM);
+		console.log('clock_name', clock_name)
+		if (!TextUtils.isEmpty(clock_name)) { //通过标签取消
+
+			intent.putExtra(AlarmClock.EXTRA_ALARM_SEARCH_MODE, AlarmClock.ALARM_SEARCH_MODE_LABEL);
+			intent.putExtra(AlarmClock.ALARM_SEARCH_MODE_LABEL, clock_name);
+			//intent.putExtra(AlarmClock.EXTRA_MESSAGE, clock_name);
+			console.log('通过标签取消')
+		} else { //通过小时分钟取消
+			console.log('通过小时分钟取消')
+			let is_pm = true
+			intent.putExtra(AlarmClock.ALARM_SEARCH_MODE_TIME, 1);
+			intent.putExtra(AlarmClock.EXTRA_IS_PM, is_pm); //其中false = AM且true = PM
+			intent.putExtra(AlarmClock.EXTRA_HOUR, hour);
+			intent.putExtra(AlarmClock.EXTRA_MINUTES, minutes);
+		}
+		intent.putExtra(AlarmClock.EXTRA_SKIP_UI, true);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+		let packageManager = UTSAndroid.getUniActivity()!.getPackageManager();
+		var component = intent.resolveActivity(packageManager);
+		if (component != null) {
+			UTSAndroid.getUniActivity()!.startActivity(intent);
+		}
+	}
+
+}
+
+/**
+ * 添加闹钟
+ */
+export function alarmAdd(opts : AddOptions) {
+	console.log('alarmAdd', UTSAndroid, UTSAndroid.getUniActivity())
+	// 检查相关权限是否已经具备
+	if (ActivityCompat.checkSelfPermission(UTSAndroid.getUniActivity()!, Manifest.permission.SET_ALARM) != PackageManager.PERMISSION_GRANTED) {
+		// 不具备权限，申请权限，并且告知用户监听失败
+		ActivityCompat.requestPermissions(UTSAndroid.getUniActivity()!, arrayOf(Manifest.permission.SET_ALARM), 1001)
+		// 因权限缺失导致监听失败
+		const ret : Results = {
+			code: -1,
+			data: "权限",
+			msg: "不具备权限，请申请权限"
+		}
+		opts.fail(ret);
+
+	} else {
+		let alarm_utils = new AlarmUtils();
+		let params : AddParams = opts.params
+
+		alarm_utils.addEvent(params);
+		const ret : Results = {
+			code: 1,
+			data: "成功",
+			msg: "添加闹铃成功"
+		}
+		opts.success(ret);
+	}
+
+	opts.complete();
+}
+
+
+/**
+ * 删除闹钟
+ */
+export function alarmDelete() {
+	let alarm_utils = new AlarmUtils();
+	console.log("======alarmDelete");
+	alarm_utils.deleteEvent();
+}

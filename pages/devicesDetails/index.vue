@@ -53,6 +53,7 @@
 			this.device = JSON.parse(options.device)
 			console.log(options.device)
 			this.statusbarHeight = uni.getStorageSync('SET_STATUS_BAR') * 2
+			// this.tolink()
 		},
 		onShow() {
 			setTimeout(() => {
@@ -86,6 +87,7 @@
 						// this.BLE.onAdapterState(state => {
 						// 	console.log('state', state)
 						// })
+						this.tolink()
 						this.adapterState = await this.BLE.getBluetoothAdapterState()
 						// this.getDeviceList()
 					}else {
@@ -96,9 +98,9 @@
 								if(confirm){
 									this.setBluebooth()
 								}
-								if(cancel){
+								// if(cancel){
 									
-								}
+								// }
 							}
 						});
 					}

@@ -2,7 +2,7 @@
 	<view class="content">
 		<view class="history_box">
 			<view class="history_list">
-				<view class="list_item" v-for="item in history" :key="item.deviceId">
+				<view class="list_item" v-for="item in history" :key="item.alarmId">
 					<view class="msg_info">
 						<view class="list_title">{{item.alarmName}}</view>
 						<view class="list_content">{{item.useTime}}</view>
@@ -21,18 +21,9 @@
 		data() {
 			return {
 				history: [{
-					deviceId: 1,
+					alarmId: 1,
 					alarmName: '9:20',
-					useTime: '2024-05-09',
-					state: 'Y'
-				},{
-					deviceId: 2,
-					alarmName: '19:20',
-					useTime: '2024-05-09',
-					state: 'N'
-				},{
-					deviceId: 3,
-					alarmName: '12:20',
+					NO: '8858',
 					useTime: '2024-05-09',
 					state: 'Y'
 				}],

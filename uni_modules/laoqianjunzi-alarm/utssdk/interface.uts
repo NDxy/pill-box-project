@@ -1,0 +1,29 @@
+export type AddParams = {
+	name : string, //闹铃名称
+	weekday : string, //重复星期
+	hour : number, //闹铃时
+	minutes : number, //分钟
+	ringtone : string, //铃声
+}
+export type DeleteParams = {
+	name : string, //名称
+}
+
+export type Results = {
+	code : number,
+	data : string | null,
+	msg : string,
+}
+
+export type AddOptions = {
+	params : AddParams;
+	success : (res : Results) => void;
+	fail : (err : Results) => void;
+	complete : () => void;
+}
+export type DeleteOptions = {
+	params : DeleteParams;
+	success : (res : Results) => void;
+	fail : (err : Results) => void;
+	complete : () => void;
+}

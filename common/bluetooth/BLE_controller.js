@@ -260,14 +260,14 @@ class BLEController {
 					console.log('连接蓝牙成功:' + res.errMsg);
 					// 获取设备服务
 					this.getBLEDeviceServices(deviceId)
-					// uni.showToast({
-					// 	mask: true,
-					// 	title: '连接认证...',
-					// 	icon: 'loading',
-					// 	duration: 99999
-					// });
+					uni.showToast({
+						mask: true,
+						title: '连接认证...',
+						icon: 'loading',
+						duration: 99999
+					});
 					// 设置超时
-					// this.timeoutErr("认证", null, 10000, true)
+					this.timeoutErr("认证", null, 10000, true)
 					// 触发连接事件
 					this.device = item
 				},
@@ -330,12 +330,12 @@ class BLEController {
 				}
 			})
 			// 连接认证
-			// this.getBLEauthentication()
-			this.syncTime()
-			this.fire('connect', {
-				code: 0, msg: '链接成功！', status: true,
-				data: this.device
-			});
+			this.getBLEauthentication()
+			// this.syncTime()
+			// this.fire('connect', {
+			// 	code: 0, msg: '链接成功！', status: true,
+			// 	data: this.device
+			// });
 			
 		  }
 		})
@@ -371,7 +371,7 @@ class BLEController {
 		  if(this.temporaryData.indexOf("_END") == -1){
 			  return 
 		  }
-		  console.log("接收数据：",this.temporaryData)
+		  // console.log("接收数据：",this.temporaryData)
 		  this.changData(this.temporaryData)
 		  if(this._events['receivemsg']) this.fire('receivemsg', this.temporaryData)
 		})
@@ -381,7 +381,9 @@ class BLEController {
 	 */
 	static getBLEauthentication(){
 		
-		this.sendMassage(BT_YH.DEVIDES_AUTH.COMMAND)
+		setTimeout(() => {
+			this.sendMassage(BT_YH.DEVIDES_AUTH.COMMAND)
+		},200)
 		
 		// // 判断是否已激活
 		// if(this.deviceName.indexOf('BLE') != -1){
@@ -429,7 +431,7 @@ class BLEController {
 	static changData(data){
 		let msg = "", code = 0, status = false, _this = this
 		this.temporaryData = "";
-		
+		console.log("接收数据：",data)
 		// 设备链接认证信息返回
 		if(data.indexOf(BT_YH.DEVIDES_AUTH.D_COMMAND) != -1){
 			if(data.indexOf(BT_YH.DEVIDES_AUTH.D_F_COMMAND) != -1){
@@ -449,13 +451,19 @@ class BLEController {
 				clearTimeout(this.timer)
 				// 监听蓝牙连接状态的改变事件
 				this.onBLEConnectionStateChange()
-				this.syncTime()
+				uni.showToast({
+					mask: true,
+					title: '链接成功',
+					icon: 'success',
+					duration: 2000
+				});
+				// this.syncTime()
 			}
 			// 触发连接事件，并返回连接认证成功及当前连接的设备
-			console.log('设备', _this.device)
-			_this.fire('connect', {
+			console.log('设备', this.device)
+			this.fire('connect', {
 				code, msg, status,
-				data: _this.device
+				data: this.device
 			});
 		}
 		
@@ -478,155 +486,167 @@ class BLEController {
 			})
 		}
 		
-		// 蓝牙关阀请求信息返回
-		if(data.indexOf("BLE_D_C") != -1){
-			clearTimeout(this.timer)
-			if(data.indexOf("BLE_D_C_SUCCESS") != -1){
-				code = 0
-				msg = "热水关阀成功"
-				status = true
-				_this.closeBLEConnection()
-			} else {
+		// 设备请求同步时间
+		if(data.indexOf(BT_YH.DEVIDES_TIME.D_COMMAND) != -1){
+			console.log(data)
+			this.syncTime()
+		}
+		
+		// 删除药盒提醒记录
+		if(data.indexOf(BT_YH.DEVIDES_CLR.D_COMMAND) != -1){
+				if(data.indexOf(BT_YH.DEVIDES_CLR.D_S_COMMAND) != -1){
+					code = 0
+					msg = "删除提醒成功"
+					status = true
+				} else {
+					code = 500
+					msg ="删除失败, 请稍后重试"
+					status = false
+				}
+				// 触发设置参数事件
+				this.fire('delete', {
+					code, msg, status
+				})
+		}
+		
+		// 闹铃上载
+		if(data.indexOf(BT_YH.UP_ALARM.D_START_COMMAND) != -1){
+			let order = {}
+			let param = {},
+				weeks = ['星期一','星期二','星期三','星期四','星期五','星期六','星期日']
+			if(data.indexOf(BT_YH.UP_ALARM.D_F_COMMAND) != -1){
 				code = 500
-				msg = "热水关阀失败, 请稍后重试"
+				msg = "参数获取失败, 请稍后重试"
 				status = false
+			} else {
+				if(data.indexOf(BT_YH.UP_ALARM.D_UP_DATA_COMMAND) != -1){
+					// 去除参数外的字符串
+					let dataStr = data.replace(BT_YH.UP_ALARM.D_UP_DATA_COMMAND, '').replace('_END', '');
+					// 分割参数字符串
+					let dataArr = dataStr.split('_');
+					
+					// 返回结果待校验的字符串
+					let checkString = BT_YH.UP_ALARM.D_UP_DATA_COMMAND + dataStr.slice(0, dataStr.lastIndexOf('_'))
+					// 本地需要校验的校验字段
+					let checkNum = addHexFilm(checkString)
+					// 的校验字段
+					let resCheckNum = dataArr.splice(dataArr.length - 1, 1)[0]
+					// console.log(checkString, checkNum, resCheckNum)
+					
+					if(checkNum != resCheckNum){
+						code = 500
+						msg = "校验获取参数失败, 请重新链接设备后重试"
+						status = false
+					}else {
+						try{
+							let playType = ''
+							let playTypeBit = pad(dataArr[2].toString(2), 7)
+							let playTypeArr = playTypeBit.split('').reverse()
+							playTypeArr.forEach((item, index) => {
+								if(item == '1') playType += (' ' + weeks[index])
+							})
+							order = {
+								alarmId: dataArr[0], //闹钟Id
+								time: dataArr[1], //时间
+								name: '时间：' + dataArr[1],
+								videoId: dataArr[3], //闹钟ID
+								video: '语音' + dataArr[3],
+								playType, // 订单消费金额
+								playTypeBit,
+							}
+							
+							const deviceAlarmList = uni.getStorageSync(this.deviceId + '__deviceAlarm')
+							const newDeviceAlarm = deviceAlarmList.length > 0 ? deviceAlarmList.filter(i => i.alarmId != order.alarmId ) : []
+							newDeviceAlarm.push(order)
+							deviceAlarmList = newDeviceAlarm
+							uni.setStorageSync(this.deviceId + '__deviceAlarm', newDeviceAlarm)
+							
+							code = 0
+							msg = "上载数据获取成功"
+							status = true
+						}catch(e){
+							//TODO handle the exception
+						}
+						// 整理格式化数据
+						console.log('处理好的参数：',order)
+					}
+				}
+				
 			}
-			// 触发关阀事件
-			this.fire('closeWater', {
-				code, msg, status
+			// 触发查询参数事件
+			this.fire('updataAlarm', {
+				code, msg, status, order
 			})
 		}
 		
-		// 认证连接蓝牙后进行的上载数据
-		if(data.indexOf("BLE_D_U") != -1){
-			let order
+		// 用药历史记录上传
+		if(data.indexOf(BT_YH.HISTORY_TM.D_COMMAND) != -1){
+			console.log(data)
+			let history
 			try{
 				let bleData = data.split('_')
 				const bleCheckNum = bleData.splice(bleData.length-2, 1)[0]
 				bleData.splice(bleData.length-1, 1)
 				const myCheckNum = addHexFilm(bleData.join('_'))
 				if ( bleCheckNum != myCheckNum ) throw '上载数据校验失败'
-				order = {
-					consumptionId: bleData[3], //订单号
-					cardNo: bleData[4], //卡号
-					cardBalance: bleData[5], //余额
-					consumeAmount: bleData[6], // 订单消费金额
-					consumeFlow: bleData[7], // 消费流量
-					deviceRecordNo: bleData[8], // 设备流水号
-					deviceTime: bleData[9] // 设备时间
+				history = {
+					alarmId: bleData[3],
+					// alarmName: '',
+					NO: bleData[6],
+					useTime: bleData[5],
+					state: bleData[4],
 				}
+				const deviceAlarmList = uni.getStorageSync(this.deviceId + '__deviceAlarm')
+				const alarm = deviceAlarmList.filter(i => i.alarmId == history.alarmId )
+				const historyList = uni.getStorageSync(this.deviceId + '__history').length > 0 ? uni.getStorageSync(this.deviceId + '__history') : []
+				
+				historyList.push({...history, alarmName: alarm.name})
+				uni.setStorageSync(this.deviceId + '__history', historyList)
 				code = 0
 				msg = "上载数据获取成功"
 				status = true
 			}catch(e){
+				console.log(e)
 				code = 500
 				msg = "上载数据获取失败：" + data + JSON.stringify(e)
 				status = false
 			}
 			// 触发上载事件
-			this.fire('upLoadData', {
-				code, msg, status, order, data
+			this.fire('upHistory', {
+				code, msg, status, history, data
 			})
 		}
 		
-		// 获取设备参数请求返回
-		if(data.indexOf("BLE_D_P_Q_") != -1){
-			let param = {}
-			if(data.indexOf("_SUCCESS_END") != -1){
-				// 去除参数外的字符串
-				let dataStr = data.replace('BLE_D_P_Q_', '').replace('_SUCCESS_END', '');
-				// 分割参数字符串
-				let dataArr = dataStr.split('_');
-				
-				// 返回结果待校验的字符串
-				let checkString = 'BLE_D_P_Q_' + dataStr.slice(0, dataStr.lastIndexOf('_'))
-				// 本地需要校验的校验字段
-				let checkNum = addHexFilm(checkString)
-				// 的校验字段
-				let resCheckNum = dataArr.splice(dataArr.length - 1, 1)[0]
-				// console.log(checkString, checkNum, resCheckNum)
-				
-				if(checkNum != resCheckNum){
-					code = 500
-					msg = "校验获取参数失败, 请重新链接设备后重试"
-					status = false
-				}else {
-					// 整理格式化数据
-					for (let i = 0; i < dataArr.length; i++) {
-						if(i%2 === 0){
-							param[dataArr[i]] = dataArr[i + 1]
-						}
-					}
-					console.log('处理好的参数：',param)
-				}
-				
-			} else {
-				code = 500
-				msg = "参数获取失败, 请稍后重试"
-				status = false
-			}
-			// 触发查询参数事件
-			this.fire('queryParam', {
-				code, msg, status, param
-			})
-		}
-		
-		// 批量设置设备参数请求返回
-		if(data.indexOf("BLE_D_P_S_ALL_") != -1){
+		// 药盒搜寻打开
+		if(data.indexOf(BT_YH.DEVIDES_SEARCH_OPEN.D_COMMAND) != -1){
 			if(data.indexOf("_SUCCESS_END") != -1){
 				code = 0
-				msg = "设置参数成功"
+				msg = "药盒搜寻打开成功"
 				status = true
 			} else {
 				code = 500
-				msg ="设置失败, 请稍后重试"
+				msg = "药盒搜寻打开失败, 请稍后重试"
 				status = false
 			}
 			// 触发设置参数事件
-			this.fire('setAllParam', {
+			this.fire('searchDeviceO', {
 				code, msg, status
 			})
 		}
 		
-		// 设置设备参数请求返回
-		if(data.indexOf("BLE_D_P_S_") != -1){
-			let key = data.split("_")[4]
+		// 药盒搜寻关闭
+		if(data.indexOf(BT_YH.DEVIDES_SEARCH_CLOSE.D_COMMAND) != -1){
 			if(data.indexOf("_SUCCESS_END") != -1){
 				code = 0
-				msg = key + "设置参数成功"
+				msg = "药盒搜寻关闭成功"
 				status = true
 			} else {
 				code = 500
-				msg = key + "设置失败, 请稍后重试"
+				msg = "药盒搜寻关闭失败, 请稍后重试"
 				status = false
 			}
 			// 触发设置参数事件
-			this.fire('setParam', {
-				code, msg, status, key
-			})
-		}
-		
-		// 通过订单获取当前订单设备的状态信息
-		if(data.indexOf("BLE_D_S_") != -1){
-			if(data.indexOf("_RUN_END") != -1){
-				code = 0
-				msg = "订单交易消费中"
-				status = true
-			} else if(data.indexOf("_OVER_END") != -1){
-				code = 200
-				msg = "订单已结束"
-				status = false
-			} else if(data.indexOf("_NULL_END") != -1){
-				code = 404
-				msg = "订单不存在(最近10条记录不存在该订单)"
-				status = false
-			} else {
-				code = 500
-				msg = "设置失败, 请稍后重试"
-				status = false
-			}
-			// 触发设置参数事件
-			this.fire('queryOrder', {
+			this.fire('searchDeviceC', {
 				code, msg, status
 			})
 		}
@@ -637,41 +657,62 @@ class BLEController {
 	 */
 	static sendMassage(command){
 		console.log("发送蓝牙总指令", command)
-		// console.log(this.services, this.deviceId, this.characteristics)
+		console.log(this.services, this.deviceId, this.characteristics)
 		let byteLen = command.length;
 		let pos = 0;
 		let loopCount = 0;
 		// 数据分包
 		let sending = i => {
-			// let command = param.slice(i, i+20)
-			let buffer = str2ab(command.slice(i, i+20));
-			// console.log("发送的蓝牙分包指令", command.slice(i, i+20))
-			setTimeout(() => {
-				console.log("发送蓝牙指令", command)
-				uni.writeBLECharacteristicValue({
-				  // 这里的 deviceId 需要在 getBluetoothDevices 或 onBluetoothDeviceFound 接口中获取
-				  deviceId: this.deviceId,
-				  // 这里的 serviceId 需要在 getBLEDeviceServices 接口中获取
-				  serviceId: this.services[2].uuid,
-				  // 这里的 characteristicId 需要在 getBLEDeviceCharacteristics 接口中获取
-				  characteristicId: this.characteristics.uuid,
-				  // 这里的value是ArrayBuffer类型
-				  value: buffer,
-				  success: res => {
-					console.log('writeBLECharacteristicValue success', res.errMsg)
-				  },
-				  fail(err) {
-				  	// console.log(err)
-				  }
-				})
-				if(i < command.length){
-					i += 20;
-					sending(i);
-				}
-			}, 50) 
+			try{
+				let com = command.slice(i, i+20)
+				let buffer = str2ab(command.slice(i, i+20));
+				// console.log("发送的蓝牙分包指令", com)
+				setTimeout(() => {
+					// console.log("发送蓝牙指令", command)
+					uni.writeBLECharacteristicValue({
+					  // 这里的 deviceId 需要在 getBluetoothDevices 或 onBluetoothDeviceFound 接口中获取
+					  deviceId: this.deviceId,
+					  // 这里的 serviceId 需要在 getBLEDeviceServices 接口中获取
+					  serviceId: this.services[2].uuid,
+					  // 这里的 characteristicId 需要在 getBLEDeviceCharacteristics 接口中获取
+					  characteristicId: this.characteristics.uuid,
+					  // 这里的value是ArrayBuffer类型
+					  value: buffer,
+					  success: res => {
+						console.log("发送的蓝牙分包指令" + com+'成功 ,writeBLECharacteristicValue success', res.errMsg)
+					  },
+					  fail(err) {
+					  	console.log(err)
+					  }
+					})
+					if(i < command.length){
+						i += 20;
+						sending(i);
+					}
+				}, 2000) 
+			}catch(e){
+				console.log(e)
+			}
 		}
 		sending(0)
 		
+		// let buffer = str2ab(command);
+		// uni.writeBLECharacteristicValue({
+		//   // 这里的 deviceId 需要在 getBluetoothDevices 或 onBluetoothDeviceFound 接口中获取
+		//   deviceId: this.deviceId,
+		//   // 这里的 serviceId 需要在 getBLEDeviceServices 接口中获取
+		//   serviceId: this.services[2].uuid,
+		//   // 这里的 characteristicId 需要在 getBLEDeviceCharacteristics 接口中获取
+		//   characteristicId: this.characteristics.uuid,
+		//   // 这里的value是ArrayBuffer类型
+		//   value: buffer,
+		//   success: res => {
+		// 	console.log("发送的蓝牙分包指令" + command+'成功 ,writeBLECharacteristicValue success', res.errMsg)
+		//   },
+		//   fail(err) {
+		// 	console.log(err)
+		//   }
+		// })
 	}
 	/**
 	 * 关闭蓝牙连接
@@ -719,6 +760,7 @@ class BLEController {
 		return new Promise((resolve, reject) => {
 			const checkNum = addHexFilm(BT_YH.DEVIDES_SET.COMMAND + "_" + alarmId + "_" + time.replace(':', '') + "_" + playTypeBit + "_" + videoId)
 			this.sendMassage(BT_YH.DEVIDES_SET.COMMAND + "_" + alarmId + "_" + time.replace(':', '') + "_" + playTypeBit + "_" + videoId + "_" + checkNum + "_END")
+			// this.sendMassage('YH_SET_0001_1155_127_1_192_END')
 			this.on('setAlarm', resolve)
 		});
 	}

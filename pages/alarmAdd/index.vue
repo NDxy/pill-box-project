@@ -24,7 +24,7 @@
 			</view>
 		</view>
 		<view class="list_box card card_btn btn_primary" @click="submit">
-			{{!settingAlarm ? '完成新增' : '修改保存'}}
+			{{!settingAlarm ? '提交新增' : '修改保存'}}
 		</view>
 		<view v-if="settingAlarm" class="list_box card card_btn btn_warning" @click="delAlarmHandler">
 			删除提醒
@@ -37,6 +37,10 @@
 
 <script>
 	let _this;
+	import {
+		alarmAdd,
+		alarmDelete
+	} from "@/uni_modules/laoqianjunzi-alarm"; 
 	import { randomNum } from '../../common/bluetooth/BLE_util.js';
 	export default {
 		data() {
@@ -171,15 +175,17 @@
 				console.log(e)
 				this.alarm.playTypeBit = '0'+e.bit
 				this.alarm.playType = e.textValues
+				this.alarm.weekday = e.values.join('')
 			},
 			async saveAlarm(){
 				
-				const newDeviceAlarm = this.deviceAlarmList.length > 0 ? this.deviceAlarmList.filter(i => i.alarmId !== this.alarm.alarmId ) : []
-				newDeviceAlarm.push(this.alarm)
-				this.deviceAlarmList = newDeviceAlarm
-				uni.setStorageSync(this.device.deviceId + '__deviceAlarm', newDeviceAlarm)
 				const setRes = await this.BLE.setAlarm({ ...this.alarm, playTypeBit: parseInt(this.alarm.playTypeBit, 2) })
 				if(setRes.code == 0){
+					const newDeviceAlarm = this.deviceAlarmList.length > 0 ? this.deviceAlarmList.filter(i => i.alarmId !== this.alarm.alarmId ) : []
+					newDeviceAlarm.push(this.alarm)
+					this.deviceAlarmList = newDeviceAlarm
+					uni.setStorageSync(this.device.deviceId + '__deviceAlarm', newDeviceAlarm)
+					this.doUtsAdd()
 				}else {
 					this.diaTitle = '温馨提示'
 					this.diaType = 'default'
@@ -191,6 +197,7 @@
 			async delAlarm(){
 				const newDeviceAlarm = this.deviceAlarmList.filter(i => i.alarmId !== this.alarm.alarmId )
 				uni.setStorageSync(this.device.deviceId + '__deviceAlarm', newDeviceAlarm)
+				
 				const setRes = await this.BLE.deleteAlaem(this.alarm.alarmId)
 				if(setRes.code == 0){
 				}else {
@@ -200,7 +207,29 @@
 					this.diaConfirmColor = '#00aaff'
 					this.dialogConfirm = ()=>{}
 				}
-			}
+			},
+			doUtsAdd() {
+				let params = {
+					name : this.alarm.name, //闹铃名称
+					weekday : this.alarm.weekday, //重复星期
+					hour : +this.alarm.time.split(':')[0], //闹铃时
+					minutes : +this.alarm.time.split(':')[1], //分钟
+					ringtone : 'https://jubaomusics.oss-cn-beijing.aliyuncs.com/%E4%B8%89%E5%8F%AA%E5%B0%8F%E7%8C%AA/%E4%B8%89%E5%8F%AA%E5%B0%8F%E7%8C%AA.mp3', //铃声
+				}
+				alarmAdd({
+					params:params,
+					success: (res) => {
+						console.log('success', res)
+				
+					},
+					fail: (res) => {
+						console.log('fail', res)
+					}, 
+					complete: () => {
+						console.log('complete')
+					},
+				})
+			},
 		}
 	}
 </script>
