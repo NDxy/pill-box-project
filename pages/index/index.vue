@@ -2,7 +2,7 @@
 	<view class="content">
 		<view class="header" :style="'padding-top:'+ parseInt(+statusbarHeight) + 'rpx'">
 			<image src="../../static/logo.png" mode="scaleToFill"></image>智慧药盒
-			<uni-icons @click="toSetting" style="position: absolute; right: 32rpx; color: #fefefe;" type="gear-filled" size="28"></uni-icons>
+			<!-- <uni-icons @click="toSetting" style="position: absolute; right: 32rpx; color: #fefefe;" type="gear-filled" size="28"></uni-icons> -->
 		</view>
 		<view class="pill_list">
 			<view class="pill_item" v-for="item in devices" :key="item.deviceId">

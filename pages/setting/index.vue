@@ -6,7 +6,7 @@
 		<view class="search_box">
 			<view class="search_icon blud" @click="clearStorageSync">
 				<text class="iconfont icon-lanya"></text>
-				<text>刷新列表</text>
+				<text>清除所有记录</text>
 			</view>
 		</view>
 		<!-- <view class="ble_list_box">
@@ -41,7 +41,7 @@
 		},
 		methods: {
 			async clearStorageSync(){
-				uni.removeStorageSync('devices')
+				uni.clearStorageSync()
 			},
 			back(){
 				uni.navigateBack()

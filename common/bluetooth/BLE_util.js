@@ -17,7 +17,9 @@ export function randomNum(n){
   }
   return res;
 }
-
+export function concat(str, index, text){
+	return str.slice(0, index) + text + str.slice(index)
+}
 // 新设备去重
 export function inArray(arr, key, val) {
   for (let i = 0; i < arr.length; i++) {

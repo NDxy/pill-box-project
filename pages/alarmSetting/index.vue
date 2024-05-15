@@ -26,8 +26,8 @@
 			</view>
 		</view>
 		<view class="list_box card">
-			<view class="list_title">
-				提醒任务列表
+			<view class="list_title title_header">
+				<text>提醒任务列表</text><text @click="clearAllAlarmHandle" style="color: #dd524d;"><uni-icons color="#dd524d" size="18" type="trash-filled"></uni-icons>清空记录</text>
 			</view>
 			<view class="list" v-if="deviceAlarm.length">
 				<view class="list_item" v-for="item in deviceAlarm" @click="setAlarm(item)">
@@ -70,19 +70,22 @@
 				diaConfirmColor: '#dd524d'
 			}
 		},
-		async onLoad(options) {
+		onLoad(options) {
 			_this = this;
 			this.device = JSON.parse(options.device)
 			this.deviceList = uni.getStorageSync('devices')
-			this.deviceAlarm = uni.getStorageSync(this.device.deviceId + '__deviceAlarm')
 			console.log(this.deviceAlarm)
+		},
+		onShow() {
+			this.refresh()
 		},
 		methods: {
 			dialogConfirm(e){},
-			async refresh(){
+			refresh(){
+				this.deviceAlarm = uni.getStorageSync(this.device.deviceId + '__deviceAlarm')
 				// this.list = await this.BLE.getDeviceList()
 				// return this.list
-				this.getDeviceList()
+				// this.getDeviceList()
 			},
 			resetDeviceNameHandle(){
 				this.showDialog()
@@ -98,6 +101,14 @@
 				this.diaContent = '删除设备后，所有配置设置和相关记录都将删除，确认删除吗？'
 				this.diaConfirmColor = '#dd524d'
 				this.dialogConfirm = this.delAlarm
+			},
+			clearAllAlarmHandle(){
+				this.showDialog()
+				this.diaTitle = '删除提示'
+				this.diaType = 'default'
+				this.diaContent = '确定要全部清除当前所有的提醒吗？'
+				this.diaConfirmColor = '#dd524d'
+				this.dialogConfirm = this.clearAllAlarm
 			},
 			showDialog(){
 				this.$refs.modelDialog.showDialog()
@@ -124,6 +135,23 @@
 				uni.reLaunch({
 					url: '../index/index'
 				})
+			},
+			async clearAllAlarm(){
+				const clearRes = await this.BLE.deleteAllAlaem()
+				this.showDialog()
+				if(clearRes.code == 0){
+					uni.removeStorageSync(this.device.deviceId + '__deviceAlarm')
+					this.diaContent = '清除所有提醒完成'
+					this.diaConfirmColor = '#00aaff'
+					this.dialogConfirm = () => {this.refresh()}
+				}else {
+					this.diaContent = '清除所有提醒失败，请重新链接药盒，再次尝试'
+					this.diaConfirmColor = '#00aaff'
+					this.dialogConfirm = () => {this.back()}
+				}
+			},
+			back(){
+				uni.navigateBack()
 			},
 			addAlarm(){
 				uni.navigateTo({
@@ -193,9 +221,14 @@
 	}
 	.list_title{
 		font-weight: 600;
+		&.title_header{
+			// width: 1;
+			display: flex;
+			justify-content: space-between;
+		}
 	}
 	.list_content{
-		font-size: 28rpx;
+		font-size: 30rpx;
 		color: #999;
 	}
 	

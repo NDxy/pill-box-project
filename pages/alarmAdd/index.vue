@@ -23,7 +23,7 @@
 				</view>
 			</view>
 		</view>
-		<view class="list_box card card_btn btn_primary" @click="submit">
+		<view v-if="!settingAlarm" class="list_box card card_btn btn_primary" @click="submit">
 			{{!settingAlarm ? '提交新增' : '修改保存'}}
 		</view>
 		<view v-if="settingAlarm" class="list_box card card_btn btn_warning" @click="delAlarmHandler">
@@ -87,22 +87,28 @@
 				}],
 				videoRange:[{
 					value:'1',
-					text: '语言1'
+					text: '该吃餐前药了',
+					path: '../../common/vidoe/该吃餐前药了.mp3'
 					},{
 					value:'2',
-					text: '语言2'
+					text: '该吃餐时药了',
+					path: '../../common/vidoe/该吃餐时药了.mp3'
 					},{
 					value:'3',
-					text: '语言3'
+					text: '该吃餐后药了',
+					path: '../../common/vidoe/该吃餐后药了.mp3'
 					},{
 					value:'4',
-					text: '语言4'
+					text: '该吃餐后一小时药了',
+					path: '../../common/vidoe/该吃餐后一小时药了.mp3'
 					},{
 					value:'5',
-					text: '语言5'
+					text: '嘀 嘀 嘀 嘀 (3s)',
+					path: '../../common/vidoe/蜂鸣器声音.mp3'
 					},{
 					value:'6',
-					text: '语言6'
+					text: '未定义语音',
+					path: '../../common/vidoe/未定义播报语音.mp3'
 				}]
 			}
 		},
@@ -134,17 +140,16 @@
 			},
 			dialogConfirm(e){},
 			setNameHandle(){
-				this.showDialog()
 				this.diaTitle = '设置名称'
 				this.diaType = 'input'
 				this.diaConfirmColor = '#00aaff'
 				this.dialogConfirm = this.setName
+				this.showDialog()
 			},
 			setName(e){
 				this.alarm.name = e.inputValue
 			},
 			submit(){
-				this.showDialog()
 				if(this.alarm.time == '' || this.alarm.name =='' || this.alarm.playType =='' || this.alarm.videoId ==''){
 					this.diaTitle = '温馨提示'
 					this.diaType = 'default'
@@ -158,14 +163,15 @@
 					this.diaConfirmColor = '#00aaff'
 					this.dialogConfirm = this.saveAlarm 
 				}
+				this.showDialog()
 			},
 			delAlarmHandler(){
-				this.showDialog()
 				this.diaTitle = '删除警告'
 				this.diaType = 'default'
 				this.diaContent = `您即将删除${this.alarm.playType} ${this.alarm.time} 名称为“${this.alarm.name}”的提醒！删除之后，次时间将不会再提醒您用药，确定删除吗！！？？`
 				this.diaConfirmColor = '#dd524d'
 				this.dialogConfirm = this.delAlarm
+				this.showDialog()
 			},
 			changeVideo(e){
 				this.alarm.videoId = e.value
@@ -180,41 +186,60 @@
 			async saveAlarm(){
 				
 				const setRes = await this.BLE.setAlarm({ ...this.alarm, playTypeBit: parseInt(this.alarm.playTypeBit, 2) })
+				this.diaTitle = '温馨提示'
+				this.diaType = 'default'
+				this.diaConfirmColor = '#00aaff'
 				if(setRes.code == 0){
-					const newDeviceAlarm = this.deviceAlarmList.length > 0 ? this.deviceAlarmList.filter(i => i.alarmId !== this.alarm.alarmId ) : []
+					const newDeviceAlarm = this.deviceAlarmList.length > 0 ? this.deviceAlarmList.filter(i => i.alarmId !== this.alarm.alarmId ) : [] 
+					const vidoePath = this.videoRange.filter(i => i.value == this.alarm.videoId)[0].path
+					console.log(vidoePath)
 					newDeviceAlarm.push(this.alarm)
 					this.deviceAlarmList = newDeviceAlarm
 					uni.setStorageSync(this.device.deviceId + '__deviceAlarm', newDeviceAlarm)
-					this.doUtsAdd()
+					this.doUtsAdd(vidoePath)
+					this.diaContent = `药盒提醒设置成功`
+					this.dialogConfirm = ()=>{ 
+						uni.navigateBack()
+					}
+					// uni.redirectTo({
+					// 	url: '../alarmSetting/index'
+					// })
 				}else {
-					this.diaTitle = '温馨提示'
-					this.diaType = 'default'
 					this.diaContent = `药盒提醒设置失败，${setRes.msg}`
-					this.diaConfirmColor = '#00aaff'
 					this.dialogConfirm = ()=>{}
 				}
+				this.showDialog()
 			},
 			async delAlarm(){
-				const newDeviceAlarm = this.deviceAlarmList.filter(i => i.alarmId !== this.alarm.alarmId )
-				uni.setStorageSync(this.device.deviceId + '__deviceAlarm', newDeviceAlarm)
-				
-				const setRes = await this.BLE.deleteAlaem(this.alarm.alarmId)
-				if(setRes.code == 0){
+				const delRes = await this.BLE.deleteAlaem(this.alarm.alarmId)
+				this.diaTitle = '温馨提示'
+				this.diaType = 'default'
+				this.diaConfirmColor = '#00aaff'
+				if(delRes.code == 0){
+					const newDeviceAlarm = this.deviceAlarmList.filter(i => i.alarmId !== this.alarm.alarmId )
+					uni.setStorageSync(this.device.deviceId + '__deviceAlarm', newDeviceAlarm)
+					// uni.redirectTo({
+					// 	url: '../alarmSetting/index'
+					// })
+					doUtsDelete()
+					this.diaContent = `药盒提醒删除成功`
+					this.dialogConfirm = ()=>{ 
+						uni.navigateBack()
+					}
 				}else {
-					this.diaTitle = '温馨提示'
-					this.diaType = 'default'
-					this.diaContent = `药盒提醒删除失败，${setRes.msg}`
-					this.diaConfirmColor = '#00aaff'
+					this.diaContent = `药盒提醒删除失败，${delRes.msg}`
 					this.dialogConfirm = ()=>{}
 				}
+				this.showDialog()
 			},
-			doUtsAdd() {
+			doUtsAdd(path) {
 				let params = {
 					name : this.alarm.name, //闹铃名称
 					weekday : this.alarm.weekday, //重复星期
 					hour : +this.alarm.time.split(':')[0], //闹铃时
 					minutes : +this.alarm.time.split(':')[1], //分钟
-					ringtone : 'https://jubaomusics.oss-cn-beijing.aliyuncs.com/%E4%B8%89%E5%8F%AA%E5%B0%8F%E7%8C%AA/%E4%B8%89%E5%8F%AA%E5%B0%8F%E7%8C%AA.mp3', //铃声
+					// ringtone : 'https://jubaomusics.oss-cn-beijing.aliyuncs.com/%E4%B8%89%E5%8F%AA%E5%B0%8F%E7%8C%AA/%E4%B8%89%E5%8F%AA%E5%B0%8F%E7%8C%AA.mp3', //铃声
+					ringtone : path, //铃声
 				}
 				alarmAdd({
 					params:params,
@@ -229,6 +254,9 @@
 						console.log('complete')
 					},
 				})
+			},
+			doUtsDelete() {
+				alarmDelete()
 			},
 		}
 	}

@@ -2,7 +2,7 @@
 	<view class="content">
 		<view class="history_box">
 			<view class="history_list">
-				<view class="list_item" v-for="item in history" :key="item.alarmId">
+				<view class="list_item" v-for="(item, index) in history" :key="index">
 					<view class="msg_info">
 						<view class="list_title">{{item.alarmName}}</view>
 						<view class="list_content">{{item.useTime}}</view>
@@ -11,7 +11,10 @@
 				</view>
 			</view>
 		</view>
-		<!-- <mo-dialog type="input" ref="modelDialog" input-placeholder="请输入设备名称" inputValue="默认设备" @confirm="dialogConfirm"/> -->
+		<view class="list_box card card_btn btn_warning" @click="showDialog">
+			删除提醒
+		</view>
+		<mo-dialog type="default" ref="modelDialog" title="温馨提示" content="请确认是否删除当前所有用药记录？" confirm-color="#dd524d"  @confirm="dialogConfirm"/>
 	</view>
 </template>
 
@@ -33,16 +36,22 @@
 		async onLoad(options) {
 			_this = this;
 			this.device = JSON.parse(options.device)
-			this.history = uni.getStorageSync(this.device.deviceId + '__history')
+			this.refresh()
 		},
 		methods: {
-			async refresh(){
-				// this.list = await this.BLE.getDeviceList()
-				// return this.list
-				this.getDeviceList()
+			refresh(){
+				this.history = uni.getStorageSync(this.device.deviceId + '__history')
+				console.log(this.history)
+			},
+			showDialog(){
+				this.$refs.modelDialog.showDialog()
 			},
 			back(){
 				uni.navigateBack()
+			},
+			dialogConfirm(){
+				uni.removeStorageSync(this.device.deviceId + '__history')
+				this.refresh()
 			}
 		}
 	}
@@ -64,6 +73,22 @@
 	.card{
 		border-radius: 24rpx;
 		margin: 24rpx;
+	}
+	.card_btn{
+		text-align: center;
+		&.btn_primary{
+			color: #007aff;
+		}
+		&.btn_warning{
+			color: #dd524d;
+		}
+	}
+	.list_box{
+		// width: 100%;
+		background-color: #FFF;
+		padding: 32rpx;
+		box-sizing: border-box;
+		// position: relative;
 	}
 	
 	.history_box{

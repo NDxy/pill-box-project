@@ -579,33 +579,40 @@ class BLEController {
 			})
 		}
 		
-		// 用药历史记录上传
+		// 用药历史记录接收
 		if(data.indexOf(BT_YH.HISTORY_TM.D_COMMAND) != -1){
 			console.log(data)
 			let history
+			let bleData = data.split('_')
+			const bleCheckNum = bleData.splice(bleData.length-2, 1)[0]
+			bleData.splice(bleData.length-1, 1)
+			const myCheckNum = addHexFilm(bleData.join('_'))
+			if ( bleCheckNum != myCheckNum ) throw '上载数据校验失败'
+			history = {
+				alarmId: bleData[3],
+				// alarmName: '',
+				NO: bleData[6],
+				state: bleData[4],
+			}
 			try{
-				let bleData = data.split('_')
-				const bleCheckNum = bleData.splice(bleData.length-2, 1)[0]
-				bleData.splice(bleData.length-1, 1)
-				const myCheckNum = addHexFilm(bleData.join('_'))
-				if ( bleCheckNum != myCheckNum ) throw '上载数据校验失败'
-				history = {
-					alarmId: bleData[3],
-					// alarmName: '',
-					NO: bleData[6],
-					useTime: bleData[5],
-					state: bleData[4],
-				}
 				const deviceAlarmList = uni.getStorageSync(this.deviceId + '__deviceAlarm')
 				const alarm = deviceAlarmList.filter(i => i.alarmId == history.alarmId )
 				const historyList = uni.getStorageSync(this.deviceId + '__history').length > 0 ? uni.getStorageSync(this.deviceId + '__history') : []
 				
-				historyList.push({...history, alarmName: alarm.name})
+				let time = bleData[5].slice(9)
+				let date = bleData[5].slice(0, 8)
+				let week = bleData[5].slice(8, 9)
+				time = concat(concat(time, 2, '-'), 5, '-')
+				date = concat(concat(date, 4, '-'), 7, '-')
+				 
+				historyList.push({...history, alarmName: alarm.name, week, useTime: date + ' ' + time})
 				uni.setStorageSync(this.deviceId + '__history', historyList)
+				this.historyBack(BT_YH.HISTORY_TM.S_COMMAND.slice(0, 6) + history.NO + '_' + BT_YH.HISTORY_TM.S_COMMAND.slice(6))
 				code = 0
 				msg = "上载数据获取成功"
 				status = true
 			}catch(e){
+				this.historyBack(BT_YH.HISTORY_TM.F_COMMAND.slice(0, 6) + history.NO + '_' + BT_YH.HISTORY_TM.F_COMMAND.slice(6))
 				console.log(e)
 				code = 500
 				msg = "上载数据获取失败：" + data + JSON.stringify(e)
@@ -689,7 +696,7 @@ class BLEController {
 						i += 20;
 						sending(i);
 					}
-				}, 2000) 
+				}, 300) 
 			}catch(e){
 				console.log(e)
 			}
@@ -786,6 +793,16 @@ class BLEController {
 		});
 	}
 	/**
+	 * 7.4.5 手机请求删除所有闹钟
+	 */
+	static deleteAllAlaem(){
+		this.removeEvent('delete')
+		return new Promise((resolve, reject) => {
+			this.sendMassage(BT_YH.DEVIDES_CLR.ALL_COMMAND)
+			this.on('delete', resolve)
+		});
+	}
+	/**
 	 * 7.5 手机寻找设备终端: 开
 	 */
 	static searchDeviceOpen(){
@@ -803,6 +820,16 @@ class BLEController {
 		return new Promise((resolve, reject) => {
 			this.sendMassage(BT_YH.DEVIDES_SEARCH_CLOSE.COMMAND)
 			this.on('searchDeviceC', resolve)
+		});
+	}
+	/**
+	 * 7.7 用药记录回应
+	 */
+	static historyBack(COMMAND){
+		// this.removeEvent('searchDeviceC')
+		return new Promise((resolve, reject) => {
+			this.sendMassage(COMMAND)
+			// this.on('searchDeviceC', resolve)
 		});
 	}
 	// *******************************添加事件*******************************
