@@ -12,9 +12,9 @@
 			</view>
 		</view>
 		<view class="list_box card card_btn btn_warning" @click="showDialog">
-			删除提醒
+			清空记录
 		</view>
-		<mo-dialog type="default" ref="modelDialog" title="温馨提示" content="请确认是否删除当前所有用药记录？" confirm-color="#dd524d"  @confirm="dialogConfirm"/>
+		<mo-dialog type="default" ref="modelDialog" title="温馨提示" content="删除所有的用药记录后将不可再恢复, 请确认是否删除所有用药记录？" confirm-color="#dd524d"  @confirm="dialogConfirm"/>
 	</view>
 </template>
 

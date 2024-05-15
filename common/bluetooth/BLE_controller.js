@@ -602,7 +602,7 @@ class BLEController {
 				let time = bleData[5].slice(9)
 				let date = bleData[5].slice(0, 8)
 				let week = bleData[5].slice(8, 9)
-				time = concat(concat(time, 2, '-'), 5, '-')
+				time = concat(concat(time, 2, ':'), 5, ':')
 				date = concat(concat(date, 4, '-'), 7, '-')
 				 
 				historyList.push({...history, alarmName: alarm.name, week, useTime: date + ' ' + time})

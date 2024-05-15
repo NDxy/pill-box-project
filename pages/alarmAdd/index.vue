@@ -5,7 +5,7 @@
 				<mo-time-picker v-model="alarm.time" icon="birthday" hint="请选择提醒时间">提醒时间</mo-time-picker>
 				<view class="list_item" @click="setNameHandle">
 					<view class="msg_info">
-						<view class="list_title">设备名称</view>
+						<view class="list_title">闹钟名称</view>
 					</view>
 					<view class="state disable">{{alarm.name}} <uni-icons style="margin-left: 24rpx;" type="right"></uni-icons></view>
 				</view>
