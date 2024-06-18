@@ -12,7 +12,8 @@ import {
   str2ab,
   initTypes,
   toast,
-  dateFtt
+  dateFtt,
+  concat
 } from "@/common/bluetooth/BLE_util.js";
 import * as CryptoJS from '@/common/crypto-js/crypto-js';
 import BT_YH from '@/common/bluetooth/command.js'
@@ -513,7 +514,8 @@ class BLEController {
 		if(data.indexOf(BT_YH.UP_ALARM.D_START_COMMAND) != -1){
 			let order = {}
 			let param = {},
-				weeks = ['星期一','星期二','星期三','星期四','星期五','星期六','星期日']
+				weeks = ['星期一','星期二','星期三','星期四','星期五','星期六','星期日'],
+				vidoeList = ['该吃餐前药了','该吃餐时药了', '该吃餐后药了','该吃餐后一小时药了', '嘀 嘀 嘀 嘀 (3s)', '未定义语音']
 			if(data.indexOf(BT_YH.UP_ALARM.D_F_COMMAND) != -1){
 				code = 500
 				msg = "参数获取失败, 请稍后重试"
@@ -550,7 +552,7 @@ class BLEController {
 								time: dataArr[1], //时间
 								name: '时间：' + dataArr[1],
 								videoId: dataArr[3], //闹钟ID
-								video: '语音' + dataArr[3],
+								video: vidoeList[dataArr[3] - 1],
 								playType, // 订单消费金额
 								playTypeBit,
 							}
@@ -595,8 +597,8 @@ class BLEController {
 				state: bleData[4],
 			}
 			try{
-				const deviceAlarmList = uni.getStorageSync(this.deviceId + '__deviceAlarm')
-				const alarm = deviceAlarmList.filter(i => i.alarmId == history.alarmId )
+				const deviceAlarmList = uni.getStorageSync(this.deviceId + '__deviceAlarm').length > 0 ? uni.getStorageSync(this.deviceId + '__deviceAlarm') : []
+				const alarm = deviceAlarmList.filter(i => i.alarmId == history.alarmId )[0]
 				const historyList = uni.getStorageSync(this.deviceId + '__history').length > 0 ? uni.getStorageSync(this.deviceId + '__history') : []
 				
 				let time = bleData[5].slice(9)
@@ -604,7 +606,7 @@ class BLEController {
 				let week = bleData[5].slice(8, 9)
 				time = concat(concat(time, 2, ':'), 5, ':')
 				date = concat(concat(date, 4, '-'), 7, '-')
-				 
+				
 				historyList.push({...history, alarmName: alarm.name, week, useTime: date + ' ' + time})
 				uni.setStorageSync(this.deviceId + '__history', historyList)
 				this.historyBack(BT_YH.HISTORY_TM.S_COMMAND.slice(0, 6) + history.NO + '_' + BT_YH.HISTORY_TM.S_COMMAND.slice(6))

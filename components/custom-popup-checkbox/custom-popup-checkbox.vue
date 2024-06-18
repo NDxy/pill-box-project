@@ -15,7 +15,7 @@
 				</view>
 			</scroll-view>
 			<view class="popup_share_btn">
-				<text class="" @click="showPopup = false;">取消</text>
+				<text class="" @click="showPopup = false;">完成</text>
 				<!-- <text class="" @click="showPopup = false;">确认</text> -->
 			</view>
 		</view>

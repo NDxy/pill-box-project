@@ -221,7 +221,7 @@
 					// uni.redirectTo({
 					// 	url: '../alarmSetting/index'
 					// })
-					doUtsDelete()
+					this.doUtsDelete()
 					this.diaContent = `药盒提醒删除成功`
 					this.dialogConfirm = ()=>{ 
 						uni.navigateBack()
