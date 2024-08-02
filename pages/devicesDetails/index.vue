@@ -18,8 +18,38 @@
 				<uni-icons style="color: #f5dffe;" type="link" size="32"></uni-icons>
 				<text>链接药盒</text>
 			</view>
+			<view class="search_icon blud" @click="toHistory">
+				<uni-icons style="color: #c3e4ff;" type="list" size="32"></uni-icons>
+				<text>用药记录</text>
+			</view>
 		</view>
-		<view class="tabbar_box">
+		<view class="search_box">
+			<view class="search_icon blud" @click="toFeedback">
+				<uni-icons style="color: #c3e4ff;" type="email-filled" size="32"></uni-icons>
+				<text>意见反馈</text>
+			</view>
+			<view class="search_icon violet" @click="$refs.modelDialog.showDialog()">
+				<uni-icons style="color: #f5dffe;" type="phone-filled" size="32"></uni-icons>
+				<text>联系我们</text>
+			</view>
+			<view class="search_icon violet" @click="toAlarmSetting">
+				<uni-icons style="color: #f5dffe;" type="gear-filled" size="32"></uni-icons>
+				<text>设置</text>
+			</view>
+		</view>
+		<!-- <view class="search_box">
+		</view> -->
+		<view class="search_box">
+			<view class="search_icon blud" @click="toHistory">
+				<uni-icons style="color: #c3e4ff;" type="videocam-filled" size="32"></uni-icons>
+				<text>视频播放</text>
+			</view>
+			<view class="search_icon violet" @click="toAlarmSetting">
+				<uni-icons style="color: #f5dffe;" type="sound-filled" size="32"></uni-icons>
+				<text>音量调节</text>
+			</view>
+		</view>
+		<!-- <view class="tabbar_box">
 			<view class="tabbar_item" @click="toHistory">
 				<uni-icons style="color: #666;" type="list" size="32"></uni-icons>
 				<text>记录</text>
@@ -28,8 +58,12 @@
 				<uni-icons style="color: #666;" type="gear" size="32"></uni-icons>
 				<text>设置</text>
 			</view>
-		</view>
-		<mo-dialog type="input" ref="modelDialog" @confirm="dialogConfirm"/>
+		</view> -->
+		<mo-dialog ref="modelDialog" @confirm="dialogConfirm" confirmText="拨打电话">
+			<view class="contactUs">
+				老年病学科：<text style="color: #73c8ff;">0771-3215588</text>
+			</view>
+		</mo-dialog>
 	</view>
 </template>
 
@@ -118,11 +152,16 @@
 			async tolink(){
 				const connectionDev =  await this.BLE.createBLEConnection(this.device)
 			},
-			dialogConfirm(e){
-				console.log(e)
+			contactUs(e){
+				uni.makePhoneCall({phoneNumber: '0771-3215588'})
 			},
 			back(){
 				uni.navigateBack()
+			},
+			toFeedback(){
+				uni.navigateTo({
+					url: '../feedback/index?device=' + JSON.stringify(this.device)
+				})
 			},
 			toHistory(){
 				uni.navigateTo({
@@ -191,7 +230,7 @@
 	}
 .search_box{
 	width: 100%;
-	height: 376rpx;
+	height: 280rpx;
 	margin-bottom: 24rpx;
 	display: flex;
 	flex-direction: row;

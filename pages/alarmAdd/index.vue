@@ -88,27 +88,27 @@
 				videoRange:[{
 					value:'1',
 					text: '该吃餐前药了',
-					path: '../../common/vidoe/该吃餐前药了.mp3'
+					path: '../../common/audio/该吃餐前药了.mp3'
 					},{
 					value:'2',
 					text: '该吃餐时药了',
-					path: '../../common/vidoe/该吃餐时药了.mp3'
+					path: '../../common/audio/该吃餐时药了.mp3'
 					},{
 					value:'3',
 					text: '该吃餐后药了',
-					path: '../../common/vidoe/该吃餐后药了.mp3'
+					path: '../../common/audio/该吃餐后药了.mp3'
 					},{
 					value:'4',
 					text: '该吃餐后一小时药了',
-					path: '../../common/vidoe/该吃餐后一小时药了.mp3'
+					path: '../../common/audio/该吃餐后一小时药了.mp3'
 					},{
 					value:'5',
 					text: '嘀 嘀 嘀 嘀 (3s)',
-					path: '../../common/vidoe/蜂鸣器声音.mp3'
+					path: '../../common/audio/蜂鸣器声音.mp3'
 					},{
 					value:'6',
 					text: '未定义语音',
-					path: '../../common/vidoe/未定义播报语音.mp3'
+					path: '../../common/audio/未定义播报语音.mp3'
 				}]
 			}
 		},
