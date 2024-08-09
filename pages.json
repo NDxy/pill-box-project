@@ -52,6 +52,13 @@
 			"style": {
 				"navigationBarTitleText": "设置提醒"
 			}
+		},
+		{
+			"path" : "pages/playVideo/playVideo",
+			"style" : 
+			{
+				"navigationBarTitleText" : "视频播放"
+			}
 		}
 	],
 	"globalStyle": {

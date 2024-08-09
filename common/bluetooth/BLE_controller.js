@@ -510,6 +510,23 @@ class BLEController {
 				})
 		}
 		
+		// 设置药盒音量
+		if(data.indexOf(BT_YH.DEVIDES_VOLUME.D_COMMAND) != -1){
+				if(data.indexOf(BT_YH.DEVIDES_VOLUME.D_S_COMMAND) != -1){
+					code = 0
+					msg = "设置音量成功"
+					status = true
+				} else {
+					code = 500
+					msg ="设置音量失败, 请稍后重试"
+					status = false
+				}
+				// 触发设置参数事件
+				this.fire('setVolumeEvent', {
+					code, msg, status
+				})
+		}
+		
 		// 闹铃上载
 		if(data.indexOf(BT_YH.UP_ALARM.D_START_COMMAND) != -1){
 			let order = {}
@@ -832,6 +849,17 @@ class BLEController {
 		return new Promise((resolve, reject) => {
 			this.sendMassage(COMMAND)
 			// this.on('searchDeviceC', resolve)
+		});
+	}
+	/**
+	 * 7.8 设置药盒音量
+	 * @param {String, Number} volume 音量值
+	 */
+	static setVolume(volume){
+		this.removeEvent('setVolumeEvent')
+		return new Promise((resolve, reject) => {
+			this.sendMassage(BT_YH.DEVIDES_VOLUME.COMMAND + "_" + volume + "_END")
+			this.on('setVolumeEvent', resolve)
 		});
 	}
 	// *******************************添加事件*******************************

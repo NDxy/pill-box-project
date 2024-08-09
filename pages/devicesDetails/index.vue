@@ -40,11 +40,11 @@
 		<!-- <view class="search_box">
 		</view> -->
 		<view class="search_box">
-			<view class="search_icon blud" @click="toHistory">
+			<view class="search_icon blud" @click="toVideoList">
 				<uni-icons style="color: #c3e4ff;" type="videocam-filled" size="32"></uni-icons>
 				<text>视频播放</text>
 			</view>
-			<view class="search_icon violet" @click="toAlarmSetting">
+			<view class="search_icon violet" @click="$refs.setVolume.showDialog()">
 				<uni-icons style="color: #f5dffe;" type="sound-filled" size="32"></uni-icons>
 				<text>音量调节</text>
 			</view>
@@ -59,9 +59,14 @@
 				<text>设置</text>
 			</view>
 		</view> -->
-		<mo-dialog ref="modelDialog" @confirm="dialogConfirm" confirmText="拨打电话">
+		<mo-dialog ref="modelDialog" @confirm="contactUs" confirmText="拨打电话">
 			<view class="contactUs">
 				老年病学科：<text style="color: #73c8ff;">0771-3215588</text>
+			</view>
+		</mo-dialog>
+		<mo-dialog ref="setVolume" @confirm="saveVolume" confirmText="拨打电话">
+			<view class="contactUs">
+				<!-- TODO:设置内容 -->
 			</view>
 		</mo-dialog>
 	</view>
@@ -79,7 +84,8 @@
 				statusbarHeight: 45,
 				device: {
 					deviceName: '默认药盒',
-				}
+				},
+				volume: 
 			}
 		},
 		async onLoad(options) {
@@ -155,6 +161,18 @@
 			contactUs(e){
 				uni.makePhoneCall({phoneNumber: '0771-3215588'})
 			},
+			saveVolume(){
+				this.BLE.setVolume(this.volume)
+					if(adapterRes.code == 0){
+						uni.showToast({
+							title: '设置成功！',
+						});
+					}else {
+						uni.showToast({
+							title: '设置失败！请重新蓝牙链接设备后重试',
+						});
+					}
+			}
 			back(){
 				uni.navigateBack()
 			},
@@ -171,6 +189,11 @@
 			toAlarmSetting(){
 				uni.navigateTo({
 					url: '../alarmSetting/index?device=' + JSON.stringify(this.device)
+				})
+			},
+			toVideoList(){
+				uni.navigateTo({
+					url: '../playVideo/videoList?device=' + JSON.stringify(this.device)
 				})
 			}
 		}
