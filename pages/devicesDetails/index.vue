@@ -85,7 +85,7 @@
 				device: {
 					deviceName: '默认药盒',
 				},
-				volume: 
+				volume: 20,
 			}
 		},
 		async onLoad(options) {
@@ -172,7 +172,7 @@
 							title: '设置失败！请重新蓝牙链接设备后重试',
 						});
 					}
-			}
+			},
 			back(){
 				uni.navigateBack()
 			},

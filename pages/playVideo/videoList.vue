@@ -26,8 +26,8 @@
 			return {
 				videoList: [{
 					videoId:'1',
-					videoName: '开放式消费记录',
-					src: '../../common/video/开放式消费记录.mp4'
+					videoName: '①糖尿病的基础知识',
+					src: 'https://aiassistant.oss-cn-shenzhen.aliyuncs.com/panda/2023/12/31/%E2%91%A0%E7%B3%96%E5%B0%BF%E7%97%85%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86.mp4'
 					},{
 					videoId:'2',
 					videoName: '离线消费保障',
