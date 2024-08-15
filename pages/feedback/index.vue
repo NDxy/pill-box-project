@@ -22,13 +22,14 @@
 		<view class="list_box card card_btn btn_primary" @click="feedback">
 			<uni-icons type="cloud-upload" color="#007aff" size="18"></uni-icons>提交反馈
 		</view>
-		<mo-dialog :type="diaType" ref="modelDialog" :content="diaContent" :confirm-color="diaConfirmColor" :input-value="device.deviceName" :title="diaTitle" input-placeholder="请输入设备名称" @confirm="dialogConfirm"/>
+		<mo-dialog type="default" ref="modelDialog" :content="diaContent" title="温馨提示" @confirm="dialogConfirm"/>
 		<!-- <custom-popup-radio title="选择播报语音" ref="popupOrg" v-model="showDevChange" :range="deviceList" @change="changeDevice"></custom-popup-radio> -->
 	</view>
 </template>
 
 <script>
 	let _this;
+	import { tmcTempLog } from "@/common/request/index.js"
 	export default {
 		data() {
 			return {
@@ -38,8 +39,6 @@
 				
 				feedbackContent: "",
 				
-				diaTitle: '温馨提示',
-				diaType: 'default',
 				diaContent: "",
 				diaConfirmColor: '#dd524d'
 			}
@@ -79,7 +78,18 @@
 				this.alarm.video = e.text
 			},
 			async feedback(){
-				
+				const res = await tmcTempLog({
+					deviceId: this.device.deviceId,
+					deviceId: this.feedbackContent
+				})
+				console.log(res)
+				this.showDialog()
+				if(res.code == 0){
+					this.diaContent = '意见反馈提交成功'
+					this.dialogConfirm = () => {this.back()}
+				}else {
+					this.diaContent = '意见反馈提交失败，再次尝试'
+				}
 			}
 		}
 	}

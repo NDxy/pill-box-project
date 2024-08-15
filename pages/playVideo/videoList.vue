@@ -30,20 +30,36 @@
 					src: 'https://aiassistant.oss-cn-shenzhen.aliyuncs.com/panda/2023/12/31/%E2%91%A0%E7%B3%96%E5%B0%BF%E7%97%85%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86.mp4'
 					},{
 					videoId:'2',
-					videoName: '离线消费保障',
-					src: '../../common/video/离线消费保障.mp4'
+					videoName: '②糖尿病饮食指导',
+					src: 'https://aiassistant.oss-cn-shenzhen.aliyuncs.com/panda/2023/12/31/%E2%91%A1%E7%B3%96%E5%B0%BF%E7%97%85%E9%A5%AE%E9%A3%9F%E6%8C%87%E5%AF%BC.mp4'
 					},{
 					videoId:'3',
-					videoName: '小达开放消费记录',
-					src: '../../common/video/小达开放消费记录.mp4'
+					videoName: '③糖尿病运动指导',
+					src: 'https://aiassistant.oss-cn-shenzhen.aliyuncs.com/panda/2023/12/31/%E2%91%A2%E7%B3%96%E5%B0%BF%E7%97%85%E8%BF%90%E5%8A%A8%E6%8C%87%E5%AF%BC.mp4'
 					},{
 					videoId:'4',
-					videoName: 'self-service',
-					src: '../../common/video/self-service.mp4'
+					videoName: '④糖尿病用药指导',
+					src: 'https://aiassistant.oss-cn-shenzhen.aliyuncs.com/panda/2023/12/31/%E2%91%A3%E7%B3%96%E5%B0%BF%E7%97%85%E7%94%A8%E8%8D%AF%E6%8C%87%E5%AF%BC.mp4'
 					},{
 					videoId:'5',
-					videoName: 'Tab-self-service',
-					src: '../../common/video/Tab-self-service.mp4'	
+					videoName: '⑤血糖监测',
+					src: 'https://aiassistant.oss-cn-shenzhen.aliyuncs.com/panda/2023/12/31/%E2%91%A4%E8%A1%80%E7%B3%96%E7%9B%91%E6%B5%8B.mp4'	
+					},{
+					videoId:'6',
+					videoName: '⑥糖尿病并发症的预防',
+					src: 'https://aiassistant.oss-cn-shenzhen.aliyuncs.com/panda/2023/12/31/%E2%91%A5%E7%B3%96%E5%B0%BF%E7%97%85%E5%B9%B6%E5%8F%91%E7%97%87%E7%9A%84%E9%A2%84%E9%98%B2.mp4'
+					},{
+					videoId:'7',
+					videoName: '⑦低血糖护理',
+					src: 'https://aiassistant.oss-cn-shenzhen.aliyuncs.com/panda/2023/12/31/%E2%91%A6%E4%BD%8E%E8%A1%80%E7%B3%96%E6%8A%A4%E7%90%86.mp4'
+					},{
+					videoId:'8',
+					videoName: '⑧胰岛素笔使用流程',
+					src: 'https://vid.xiumi.us/xmi/ua/4GPl4/v/f6ee61890a83e0faf79b0c2b5ea126d2-sz_56302129.mp4'
+					},{
+					videoId:'9',
+					videoName: '⑨糖尿病患者足部护理',
+					src: 'https://aiassistant.oss-cn-shenzhen.aliyuncs.com/panda/2023/12/31/%E2%91%A8%E7%B3%96%E5%B0%BF%E7%97%85%E6%82%A3%E8%80%85%E8%B6%B3%E9%83%A8%E6%8A%A4%E7%90%86.mp4'	
 				}],
 				device:{},
 				diaTitle: '温馨提示',
@@ -60,8 +76,9 @@
 				
 			},
 			toPlayVideo(video){
+				console.log(video)
 				uni.navigateTo({
-					url: './playVideo?video=' + encodeURIComponent(video)
+					url: './playVideo?video=' + encodeURIComponent(JSON.stringify(video))
 				})
 			}
 		}
@@ -121,7 +138,7 @@
 		}
 	}
 	.list_title{
-		width: 140rpx;
+		// width: 140rpx;
 		font-weight: 600;
 	}
 	.list_content{

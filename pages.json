@@ -54,9 +54,14 @@
 			}
 		},
 		{
+			"path": "pages/playVideo/videoList",
+			"style": {
+				"navigationBarTitleText": "视频列表"
+			}
+		},
+		{
 			"path" : "pages/playVideo/playVideo",
-			"style" : 
-			{
+			"style" : {
 				"navigationBarTitleText" : "视频播放"
 			}
 		}

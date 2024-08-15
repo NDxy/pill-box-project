@@ -59,12 +59,12 @@
 				<text>设置</text>
 			</view>
 		</view> -->
-		<mo-dialog ref="modelDialog" @confirm="contactUs" confirmText="拨打电话">
+		<mo-dialog ref="modelDialog" @confirm="contactUs" title="联系我们" confirmText="拨打电话">
 			<view class="contactUs">
-				老年病学科：<text style="color: #73c8ff;">0771-3215588</text>
+				老年病学科：<text style="color: #73c8ff;">0773-3840447</text>
 			</view>
 		</mo-dialog>
-		<mo-dialog ref="setVolume" @confirm="saveVolume" confirmText="拨打电话">
+		<mo-dialog ref="setVolume" @confirm="saveVolume" title="音量设置" confirmText="设置音量">
 			<view class="contactUs">
 				<!-- TODO:设置内容 -->
 			</view>
@@ -103,10 +103,6 @@
 		methods: {
 			// 打开蓝牙
 			setBluebooth(){
-				// var main = plus.android.runtimeMainActivity();
-				// var Intent = plus.android.importClass('android.content.Intent');
-				// var mIntent = new Intent('android.settings.BLUETOOTH_SETTINGS');
-				// main.startActivity(mIntent);
 				const BluetoothAdapter = plus.android.importClass('android.bluetooth.BluetoothAdapter');
 				const blueadapter = BluetoothAdapter.getDefaultAdapter();
 				if (blueadapter != null) {
@@ -159,7 +155,7 @@
 				const connectionDev =  await this.BLE.createBLEConnection(this.device)
 			},
 			contactUs(e){
-				uni.makePhoneCall({phoneNumber: '0771-3215588'})
+				uni.makePhoneCall({phoneNumber: '0773-3840447'})
 			},
 			saveVolume(){
 				this.BLE.setVolume(this.volume)
@@ -192,6 +188,7 @@
 				})
 			},
 			toVideoList(){
+				// console.log('视频跳转')
 				uni.navigateTo({
 					url: '../playVideo/videoList?device=' + JSON.stringify(this.device)
 				})
