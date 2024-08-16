@@ -1,14 +1,14 @@
 <template>
 	<view class="content">
 		<view class="header" :style="'padding-top:'+ parseInt(+statusbarHeight) + 'rpx'">
-			<image src="../../static/logo.png" mode="scaleToFill"></image>智慧药盒
+			<image src="../../static/logo.png" mode="scaleToFill"></image>老友药记
 			<!-- <uni-icons @click="toSetting" style="position: absolute; right: 32rpx; color: #fefefe;" type="gear-filled" size="28"></uni-icons> -->
 		</view>
 		<view class="pill_list">
 			<view class="pill_item" v-for="item in devices" :key="item.deviceId">
 				<view class="pill_item_box" @click="toDetails(item)">
-					<view class="pill_img"> 
-						<image src="../../static/logo.png" mode="scaleToFill"></image>
+					<view class="pill_img">
+						<image src="../../static/yh.png" mode="scaleToFill"></image>
 					</view>
 					<view class="pill_name">{{item.deviceName}}</view>
 					<view class="pill_NO">{{item.name}}</view>
@@ -98,7 +98,15 @@
 		width: 100vw;
 		height: 100vh;
 		overflow: auto;
-		background-image: linear-gradient(#7067ff, #4377fd 10%, #f1f5fc 82%);
+		background-color: #f8f8f8;
+		// background-image: linear-gradient(#7067ff, #4377fd 0%, #f1f5fc 40%);
+		background-image: radial-gradient(circle at 50% -60%, #4377fd 50%, transparent 50.1%);
+		
+		// background-image: radial-gradient(circle at 50% 50%, #7eacc1 10%, transparent 20%), 
+		// 				radial-gradient(circle at 30% 40%, #89c69d 10%, transparent 20%), 
+		// 				radial-gradient(circle at 0% 8%, #d59d99 10%, transparent 40%),
+		// 				radial-gradient(circle at 200rpx 800rpx, #4dddb2 100rpx, transparent 550rpx), 
+		// 				radial-gradient(circle at 600rpx 300rpx, #88cdf6 300rpx, transparent 600rpx);
 	}
 	.pill_list{
 		width: 100vw;
@@ -118,12 +126,20 @@
 		box-sizing: border-box;
 	}
 	.pill_item_box{
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		justify-content: flex-start;
+		position: relative;
+		z-index: 1;
 		padding: 24rpx;
-		background-color: #FFF;
+		// background-color: #FFF;
+		backdrop-filter: blur(15px);
+		background-color: rgba(255, 255, 255, 0.4);
 		border-radius: 24rpx;
 		box-shadow: rgba(18, 135, 239, 0.3) 2rpx 2rpx 6rpx;
 		width: 100%;
-		height: 190rpx;
+		height: 150rpx;
 		&.add{
 			display: flex;
 			flex-direction: column;
@@ -138,17 +154,23 @@
 		}
 	}
 	.pill_img{
+		position: absolute;
+		top: 0;
+		right: 0;
+		z-index: -1;
+		opacity: 0.8;
 		image{
-			width: 120rpx;
-			height: 90rpx;
+			width: 240rpx;
+			height: 180rpx;
 		}
 	}
 	.pill_name{
 		font-weight: 600;
+		font-size: 36rpx;
 	}
 	.pill_NO{
-		font-size: 26rpx;
-		color: #999;
+		font-size: 30rpx;
+		color: #666;
 	}
 	.header{
 		display: flex;

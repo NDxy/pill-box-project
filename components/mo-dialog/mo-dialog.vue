@@ -6,10 +6,10 @@
 				{{title}}
 			</view>
 			<view class="dialog_content" v-if="type === 'default'">
-				<view v-if="content === ''" class="">
+				<view v-if="content === ''" class="content slot_content">
 					<slot></slot>
 				</view>
-				<view v-else class="">
+				<view v-else class="content text_content">
 					{{content}}
 				</view>
 			</view>
@@ -180,6 +180,10 @@
 		min-height: 100rpx;
 		text-indent: 64rpx;
 		font-size: 32rpx;
+	}
+	.content{
+		width: 100%;
+		flex: 1;
 	}
 	.input_box{
 		flex: 1;

@@ -62,6 +62,20 @@ const BT_YH = {
 		D_COMMAND: "YH_D_VOLUME_",
 		D_S_COMMAND: "YH_D_VOLUME_SUCCESS_END", // 接收成功指令
 		D_F_COMMAND: "YH_D_VOLUME_FAIL_END" // 接收失败指令
+	},
+	// 获取药盒音量
+	QUERY_VOLUME: {
+		COMMAND: "YH_QUERY_VOLUME_END", //获取音量
+		D_COMMAND: "YH_D_QUERY_VOLUME_",
+		D_S_COMMAND: "YH_D_QUERY_VOLUME_", // 接收成功指令
+		D_F_COMMAND: "YH_D_QUERY_VOLUME_FAIL_END" // 接收失败指令
+	},
+	// 获取版本号
+	VERSION: {
+		COMMAND: "YH_VERSION_END", //版本号获取
+		D_COMMAND: "YH_D_VERSION_",
+		D_S_COMMAND: "YH_D_VERSION_", // 接收成功指令
+		D_F_COMMAND: "YH_D_VERSION_FAIL_END" // 接收失败指令
 	}
 }
 

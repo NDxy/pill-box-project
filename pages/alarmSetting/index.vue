@@ -23,6 +23,13 @@
 					</view>
 					<view class="state disable">{{device.deviceId}} </view>
 				</view>
+				<view class="list_item">
+					<view class="msg_info">
+						<view class="list_title">设备版本号</view>
+						<view class="list_content"></view>
+					</view>
+					<view class="state disable">V{{device.version}} </view>
+				</view>
 			</view>
 		</view>
 		<view class="list_box card">
@@ -70,11 +77,13 @@
 				diaConfirmColor: '#dd524d'
 			}
 		},
-		onLoad(options) {
+		async onLoad(options) {
 			_this = this;
 			this.device = JSON.parse(options.device)
 			this.deviceList = uni.getStorageSync('devices')
 			console.log(this.deviceAlarm)
+			const vRes = await this.BLE.getVersion()
+			if(vRes.code == 0) this.device["version"] = vRes.data
 		},
 		onShow() {
 			this.refresh()

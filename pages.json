@@ -31,8 +31,8 @@
 		{
 			"path": "pages/devicesDetails/index",
 			"style": {
-				"navigationBarTitleText": "药盒设置",
-				"navigationStyle": "custom"
+				"navigationBarTitleText": "药盒设置"
+				// "navigationStyle": "custom"
 			}
 		},
 		{

@@ -510,7 +510,7 @@ class BLEController {
 				})
 		}
 		
-		// 设置药盒音量
+		// 设置药盒设备音量
 		if(data.indexOf(BT_YH.DEVIDES_VOLUME.D_COMMAND) != -1){
 				if(data.indexOf(BT_YH.DEVIDES_VOLUME.D_S_COMMAND) != -1){
 					code = 0
@@ -525,6 +525,24 @@ class BLEController {
 				this.fire('setVolumeEvent', {
 					code, msg, status
 				})
+		}
+		
+		// 获取药盒设备音量
+		if(data.indexOf(BT_YH.QUERY_VOLUME.D_COMMAND) != -1){
+			if(data.indexOf(BT_YH.QUERY_VOLUME.D_F_COMMAND) != -1){
+				code = 500
+				msg = "蓝牙设备获取药盒音量, 请重新查询并连接"
+				status = false
+			}else {
+				code = 0
+				msg = "蓝牙设备获取药盒音量成功"
+				status = true
+				const volume = data.split("_")[3]
+			}
+			this.fire('getVolumeEvent', {
+				code, msg, status,
+				data: volume
+			});
 		}
 		
 		// 闹铃上载
@@ -675,6 +693,25 @@ class BLEController {
 			this.fire('searchDeviceC', {
 				code, msg, status
 			})
+		}
+		
+		// 设备获取版本号
+		if(data.indexOf(BT_YH.VERSION.D_COMMAND) != -1){
+			if(data.indexOf(BT_YH.VERSION.D_F_COMMAND) != -1){
+				code = 500
+				msg = "蓝牙设备获取版本号, 请重新查询并连接"
+				status = false
+			}else {
+				code = 0
+				msg = "蓝牙设备获取版本号成功"
+				status = true
+				const version = data.split("_")[3]
+				// this.syncTime()
+			}
+			this.fire('getVersionEvent', {
+				code, msg, status,
+				data: version
+			});
 		}
 	}
 	/**
@@ -852,7 +889,17 @@ class BLEController {
 		});
 	}
 	/**
-	 * 7.8 设置药盒音量
+	 * 7.8.1 获取药盒音量
+	 */
+	static getVolume(){
+		this.removeEvent('getVolumeEvent')
+		return new Promise((resolve, reject) => {
+			this.sendMassage(BT_YH.QUERY_VOLUME.COMMAND)
+			this.on('getVolumeEvent', resolve)
+		});
+	}
+	/**
+	 * 7.8.2 设置药盒音量
 	 * @param {String, Number} volume 音量值
 	 */
 	static setVolume(volume){
@@ -860,6 +907,17 @@ class BLEController {
 		return new Promise((resolve, reject) => {
 			this.sendMassage(BT_YH.DEVIDES_VOLUME.COMMAND + "_" + volume + "_END")
 			this.on('setVolumeEvent', resolve)
+		});
+	}
+	/**
+	 * 7.9 获取药盒版本号
+	 * @param {String, Number} volume 音量值
+	 */
+	static getVersion(){
+		this.removeEvent('getVersionEvent')
+		return new Promise((resolve, reject) => {
+			this.sendMassage(BT_YH.VERSION.COMMAND)
+			this.on('getVersionEvent', resolve)
 		});
 	}
 	// *******************************添加事件*******************************
