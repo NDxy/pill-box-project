@@ -7,8 +7,9 @@
 		<view class="pill_box">
 			<view class="pill_box_msg">
 				<view class="pill_box_name">{{device.deviceName}}</view>
-				<view class="pill_box_state">{{device.deviceName}}</view>
+				<!-- <view class="pill_box_state">{{device.deviceName}}</view> -->
 				<view class="pill_box_blename">蓝牙名称：{{device.name}}</view>
+				<view class="pill_box_blename">版本号：{{device.version}}</view>
 			</view>
 			<view class="pill_box_image">
 				<image src="../../static/yh.png" mode="scaleToFill"></image>
@@ -25,29 +26,55 @@
 			</view>
 		</view>
 		<view class="menu_box">
-			<view class="menu_item blud" @click="toFeedback">
-				<uni-icons style="color: #c3e4ff;" type="email-filled" size="32"></uni-icons>
-				<text>意见反馈</text>
-			</view>
-			<view class="menu_item violet" @click="$refs.modelDialog.showDialog()">
-				<uni-icons style="color: #f5dffe;" type="phone-filled" size="32"></uni-icons>
-				<text>联系我们</text>
-			</view>
-			<view class="menu_item violet" @click="toAlarmSetting">
-				<uni-icons style="color: #f5dffe;" type="gear-filled" size="32"></uni-icons>
-				<text>设置</text>
-			</view>
-			<view class="menu_item blud" @click="toVideoList">
-				<uni-icons style="color: #c3e4ff;" type="videocam-filled" size="28"></uni-icons>
-				<text>视频播放</text>
-			</view>
-			<view class="menu_item violet" @click="$refs.setVolume.showDialog()">
-				<uni-icons style="color: #f5dffe;" type="sound-filled" size="32"></uni-icons>
-				<text>音量调节</text>
-			</view>
-			<view class="menu_item blud" @click="toHistory">
-				<uni-icons style="color: #c3e4ff;" type="list" size="32"></uni-icons>
-				<text>用药记录</text>
+			<view class="menu_groud">
+				<view class="menu_item" @click="toHistory">
+					<view class="menu_btn">
+						<text>用药记录</text>
+						<view class="icon_box blud">
+							<view class="icon_mask"><uni-icons :style="iconStyle" type="list" size="36"></uni-icons></view>
+						</view>
+					</view>
+				</view>
+				<view class="menu_item" @click="toAlarmSetting">
+					<view class="menu_btn">
+						<text>提醒设置</text>
+						<view class="icon_box violet">
+							<view class="icon_mask"><uni-icons :style="iconStyle" type="gear-filled" size="36"></uni-icons></view>
+						</view>
+					</view>
+				</view>
+				<view class="menu_item" @click="$refs.setVolume.showDialog()">
+					<view class="menu_btn">
+						<text>音量调节</text>
+						<view class="icon_box indigo">
+							<view class="icon_mask"><uni-icons :style="iconStyle" type="sound-filled" size="36"></uni-icons></view>
+						</view>
+					</view>
+				</view>
+				<view class="menu_item" @click="toVideoList">
+					<view class="menu_btn">
+						<text>视频播放</text>
+						<view class="icon_box info">
+							<view class="icon_mask"><uni-icons :style="iconStyle" type="videocam-filled" size="36"></uni-icons></view>
+						</view>
+					</view>
+				</view>
+				<view class="menu_item" @click="toFeedback">
+					<view class="menu_btn">
+						<text>意见反馈</text>
+						<view class="icon_box blud">
+							<view class="icon_mask"><uni-icons :style="iconStyle" type="email-filled" size="36"></uni-icons></view>
+						</view>
+					</view>
+				</view>
+				<view class="menu_item" @click="$refs.modelDialog.showDialog()">
+					<view class="menu_btn">
+						<text>联系我们</text>
+						<view class="icon_box info">
+							<view class="icon_mask"><uni-icons :style="iconStyle" type="phone-filled" size="36"></uni-icons></view>
+						</view>
+					</view>
+				</view>
 			</view>
 		</view>
 		<mo-dialog ref="modelDialog" @confirm="contactUs" title="联系我们" confirmText="拨打电话">
@@ -55,9 +82,9 @@
 				老年病学科：<text style="color: #73c8ff;">0773-3840447</text>
 			</view>
 		</mo-dialog>
-		<mo-dialog ref="setVolume" @confirm="saveVolume" title="音量设置" confirmText="确定">
+		<mo-dialog ref="setVolume" title="音量设置" confirmText="确定">
 			<view class="set_volume_box">
-				<slider :value="volume" @change="volumeChange" @changing="sliding" step="3.3"  show-value/>
+				<slider :value="volume" @change="volumeChange" @changing="sliding" step="3" max="30" show-value/>
 			</view>
 		</mo-dialog>
 	</view>
@@ -74,16 +101,15 @@
 					deviceName: '默认药盒',
 				},
 				volume: 20,
+				iconStyle: "background-image: linear-gradient(#ffffff, #c9e3fe); -webkit-background-clip: text;background-clip: text;color: transparent;font-weight:bloder;"
 				// defaultVol: 20
 			}
 		},
 		async onLoad(options) {
 			_this = this;
 			this.device = JSON.parse(options.device)
-			console.log(options.device)
+			console.log(this.device)
 			// this.statusbarHeight = uni.getStorageSync('SET_STATUS_BAR') * 2
-			const volRes = await this.BLE.getVolume()
-			if(volRes.code == 0) this.volume = volRes.data
 		},
 		onShow() {
 			setTimeout(() => {
@@ -115,7 +141,7 @@
 						// })
 						this.tolink()
 						this.adapterState = await this.BLE.getBluetoothAdapterState()
-						// this.getDeviceList()
+						
 					} else {
 						uni.showModal({
 							title: '提示',
@@ -146,10 +172,14 @@
 			},
 			async tolink() {
 				const connectionDev = await this.BLE.createBLEConnection(this.device)
+				const vRes = await this.BLE.getVersion()
+				if(vRes.code == 0) this.device = {...this.device, version:vRes.data}
+				const volRes = await this.BLE.getVolume()
+				if(volRes.code == 0) this.volume = volRes.data
 			},
 			contactUs(e) {
 				uni.makePhoneCall({
-					phoneNumber: '15977798289'
+					phoneNumber: '0773-3840447'
 				})
 			},
 			async saveVolume(volume) {
@@ -249,21 +279,26 @@
 		align-items: center;
 		justify-content: space-between;
 		padding: 32rpx;
-		background-image: linear-gradient(to top,  #f8f8f8, #e0e9f8 40%, #f8f8f8 82%);
-		height: 210rpx;
+		position: relative;
+		background-image: linear-gradient(to top,  #f8f8f8, #d6ddf8 40%, #f8f8f8 82%);
+		height: 270rpx;
 		.pill_box_image {
-			width: 280rpx;
-			height: 210rpx;
+			width: 360rpx;
+			height: 270rpx;
+			position: absolute;
+			right: 0;
+			top: 50%;
+			margin-top: -135rpx;
 
 			image {
-				width: 280rpx;
-				height: 210rpx;
+				width: 360rpx;
+				height: 270rpx;
 			}
 		}
 		.pill_box_msg{
 			padding: 32rpx;
 			.pill_box_name{
-				font-size: 36rpx;
+				font-size: 40rpx;
 				font-weight: 700;
 			}
 			.pill_box_state{
@@ -291,10 +326,11 @@
 			justify-content: center;
 			align-items: center;
 			width: 200rpx;
-			height: 120rpx;
-			border-radius: 12rpx;
-			font-size: 26rpx;
-			line-height: 40rpx;
+			height: 140rpx;
+			border-radius: 24rpx;
+			font-size: 32rpx;
+			font-weight: 700;
+			line-height: 60rpx;
 
 			&.blud {
 				border: 8rpx solid #c3e4ff;
@@ -346,18 +382,104 @@
 		background-color: #FFF;
 		border-top-right-radius: 32rpx;
 		border-top-left-radius: 32rpx;
-		display: flex;
-		flex-direction: row;
-		// justify-content: center;
-		align-items: flex-start;
-		flex-wrap: wrap;
+		box-shadow: 5px -5px 9px #e9e9e9;
+		padding-top: 32rpx;
+		
+		.menu_groud{
+			display: flex;
+			flex-direction: row;
+			justify-content: flex-start;
+			align-items: flex-start;
+			flex-wrap: wrap;
+		}
 		.menu_item{
 			display: flex;
 			flex-direction: column;
 			justify-content: center;
 			align-items: center;
-			width: calc(100%/3);
+			width: calc(100%/2);
 			height: 200rpx;
+			margin: 12rpx 0;
+		}
+		.menu_btn{
+			width: 86%;
+			height: 180rpx;
+			position: relative;
+			padding: 48rpx 32rpx 32rpx 32rpx;
+			box-sizing: border-box;
+			border-radius: 15px;
+			overflow: hidden;
+			color: #444;
+			font-weight: 700;
+			// background: linear-gradient(225deg, #ffffff, #e6e6e6);
+			
+			// backdrop-filter: blur(15px);
+			background-color: rgba(208, 226, 250, 0.4);
+			
+			// background-color: #e9f1fa;
+			// background-image: linear-gradient(#7067ff, #4377fd 0%, #f1f5fc 40%);
+			background-image: radial-gradient(circle at 90% 0%, rgba(208, 227, 250, 0.4) 40%, transparent 40.5%);
+			box-shadow:  -5rpx 5rpx 15rpx #ececec,
+			             5rpx -5rpx 10rpx #ffffff;
+		}
+		.icon_box{
+			position: absolute;
+			bottom: 0;
+			right: -36rpx;
+			width: 140rpx;
+			height: 140rpx;
+			border-radius: 40rpx;
+			line-height: 140rpx;
+			text-align: center;
+			.icon_mask{
+				position: absolute;
+				bottom: -12rpx;
+				right: 24rpx;
+				width: 140rpx;
+				height: 140rpx;
+				backdrop-filter: blur(4px);
+				border-radius: 40rpx;
+				background-color: rgba(208, 226, 250, 0.2);
+				box-shadow:  -0px -0px 4rpx #ffffff,
+							0rpx 0rpx 4rpx #e8e8e8;
+				            
+							 color: #b94efc;
+			}
+			
+			&.blud {
+				background: linear-gradient(-45deg, #007AFF, rgba(0, 122, 255, 0.8));
+				border-radius: 50%;
+				.icon_mask{
+					border-radius: 50%;
+				}
+			}
+			
+			&.indigo {
+				background: linear-gradient(-45deg, #0dc8e3, rgba(13, 200, 227, 0.8));
+				border-top-right-radius: 50%;
+				.icon_mask{
+					border-top-right-radius: 50%;
+				}
+			}
+			
+			&.violet { 
+				background: linear-gradient(-45deg, #af7cfc, rgba(175, 124, 252, 0.8));
+				transform:rotate(45deg);
+				bottom: -12rpx;
+				right: -42rpx;
+				.icon_mask{
+					bottom: -28rpx;
+					right: 16rpx;
+				}
+			}
+			
+			&.info { 
+				background: linear-gradient(-45deg, #ffc665, rgba(255, 198, 101, 0.8));
+				border-top-left-radius: 50%;
+				.icon_mask{
+					border-top-left-radius: 50%;
+				}
+			}
 		}
 	}
 	.volumeChange{

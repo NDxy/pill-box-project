@@ -28,7 +28,7 @@
 						<view class="list_title">设备版本号</view>
 						<view class="list_content"></view>
 					</view>
-					<view class="state disable">V{{device.version}} </view>
+					<view class="state disable">{{device.version}} </view>
 				</view>
 			</view>
 		</view>
@@ -37,7 +37,7 @@
 				<text>提醒任务列表</text><text @click="clearAllAlarmHandle" style="color: #dd524d;"><uni-icons color="#dd524d" size="18" type="trash-filled"></uni-icons>清空记录</text>
 			</view>
 			<view class="list" v-if="deviceAlarm.length">
-				<view class="list_item" v-for="item in deviceAlarm" @click="setAlarm(item)">
+				<view class="list_item" v-for="item in deviceAlarm" @click="setAlarm(item)" :key="item.alarmId">
 					<view class="msg_info">
 						<view class="list_title">名称：{{item.name}}</view>
 						<view class="list_content">{{item.playType}}|{{item.time}}</view>
@@ -81,9 +81,11 @@
 			_this = this;
 			this.device = JSON.parse(options.device)
 			this.deviceList = uni.getStorageSync('devices')
-			console.log(this.deviceAlarm)
-			const vRes = await this.BLE.getVersion()
-			if(vRes.code == 0) this.device["version"] = vRes.data
+			// const vRes = await this.BLE.getVersion()
+			// if(vRes.code == 0) {
+			// 	this.device = {...this.device, version:vRes.data}
+			// }
+			// console.log(this.device)
 		},
 		onShow() {
 			this.refresh()

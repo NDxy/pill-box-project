@@ -529,6 +529,7 @@ class BLEController {
 		
 		// 获取药盒设备音量
 		if(data.indexOf(BT_YH.QUERY_VOLUME.D_COMMAND) != -1){
+			let volume = ""
 			if(data.indexOf(BT_YH.QUERY_VOLUME.D_F_COMMAND) != -1){
 				code = 500
 				msg = "蓝牙设备获取药盒音量, 请重新查询并连接"
@@ -537,7 +538,7 @@ class BLEController {
 				code = 0
 				msg = "蓝牙设备获取药盒音量成功"
 				status = true
-				const volume = data.split("_")[3]
+				volume = data.split("_")[4]
 			}
 			this.fire('getVolumeEvent', {
 				code, msg, status,
@@ -697,6 +698,7 @@ class BLEController {
 		
 		// 设备获取版本号
 		if(data.indexOf(BT_YH.VERSION.D_COMMAND) != -1){
+			let version = ""
 			if(data.indexOf(BT_YH.VERSION.D_F_COMMAND) != -1){
 				code = 500
 				msg = "蓝牙设备获取版本号, 请重新查询并连接"
@@ -705,7 +707,7 @@ class BLEController {
 				code = 0
 				msg = "蓝牙设备获取版本号成功"
 				status = true
-				const version = data.split("_")[3]
+				version = data.split("_")[3]
 				// this.syncTime()
 			}
 			this.fire('getVersionEvent', {
@@ -995,6 +997,7 @@ class BLEController {
 	 */
 	static fire(type, data) {
 		type = type.toLowerCase();
+		console.log(this._events)
 		if(this._events[type])
 		this._events[type].forEach(h => h(data))
 	}
