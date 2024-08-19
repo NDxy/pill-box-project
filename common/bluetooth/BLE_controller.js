@@ -62,8 +62,11 @@ class BLEController {
 	 */
 	static async openBluetoothAdapter(fn) {
 		if (this.adapterOpend) {
-		  console.log("蓝牙适配器已打开,请勿重复操作------》");
-		  return {code: 0, status: true};
+			// const adapterState = await this.getBluetoothAdapterState()
+			// if(adapterState.available) {
+			// }
+			console.log("蓝牙适配器已打开,请勿重复操作------》");
+			return {code: 0, status: true};
 		}
 		this.onBluetoothAdapterStateChange()
 		return new Promise((resolve, reject) => {
@@ -100,6 +103,7 @@ class BLEController {
 					// reject(e)
 					resolve(e)
 					if (e.errCode !== 0) {
+						console.log("getBluetoothAdapterState", e.errCode)
 						initTypes(e.errCode,e.errMsg);
 					}
 				}
@@ -406,23 +410,29 @@ class BLEController {
 		let _this = this
 		uni.onBLEConnectionStateChange(function (res) {
 			// 该方法回调中可以用于处理连接意外断开等异常情况
-			// console.log(`device ${res.deviceId} state has changed, connected: ${res.connected}`)
-			_this.fire('connectionState', {
-				deviceId: res.deviceId,
-				code: 0, 
-				msg: res.connected ? '设备已离线' : '设备已连接', 
-				status: res.connected,
-				data: _this.deviceList.filter(i=> i.deviceId == res.deviceId)[0] //_this.device
-			});
-			// 如果是离线，则清除链接的数据
-			// _this.closeBLEConnection()
-			if(!res.connected){
-				_this.deviceACode = null;
-				_this.device = null;
-				_this.deviceId = "";
-				_this.deviceName = null;
-				_this.deviceMac = null;
-				_this.deviceLinked = false
+			console.log(`device ${res.deviceId} state has changed, connected: ${res.connected}`)
+			try{
+				_this.fire('connectionState', {
+					deviceId: res.deviceId,
+					code: 0, 
+					msg: res.connected ? '设备已离线' : '设备已连接', 
+					status: res.connected,
+					data: _this.device //_this.deviceList.filter(i=> i.deviceId == res.deviceId)[0]
+				});
+				// 如果是离线，则清除链接的数据
+				// _this.closeBLEConnection()
+				if(!res.connected){
+					_this.deviceACode = null;
+					_this.device = null;
+					_this.deviceId = "";
+					_this.deviceName = null;
+					_this.deviceMac = null;
+					_this.deviceLinked = false
+					console.log(res.connected)
+				}
+			}catch(e){
+				console.log(e)
+				//TODO handle the exception
 			}
 		})
 	}
@@ -637,13 +647,16 @@ class BLEController {
 				const alarm = deviceAlarmList.filter(i => i.alarmId == history.alarmId )[0]
 				const historyList = uni.getStorageSync(this.deviceId + '__history').length > 0 ? uni.getStorageSync(this.deviceId + '__history') : []
 				
-				let time = bleData[5].slice(9)
-				let date = bleData[5].slice(0, 8)
-				let week = bleData[5].slice(8, 9)
-				time = concat(concat(time, 2, ':'), 5, ':')
-				date = concat(concat(date, 4, '-'), 7, '-')
+				let time = "",date = "",week = "";
+				if(bleData[5] != 'NULL') {
+					time = bleData[5].slice(9)
+					date = bleData[5].slice(0, 8)
+					week = bleData[5].slice(8, 9)
+					time = concat(concat(time, 2, ':'), 5, ':')
+					date = concat(concat(date, 4, '-'), 7, '-')
+				}
 				
-				historyList.push({...history, alarmName: alarm.name, week, useTime: date + ' ' + time})
+				historyList.push({...history, alarmName: (alarm?alarm.name:''), week, useTime: date + ' ' + time})
 				uni.setStorageSync(this.deviceId + '__history', historyList)
 				this.historyBack(BT_YH.HISTORY_TM.S_COMMAND.slice(0, 6) + history.NO + '_' + BT_YH.HISTORY_TM.S_COMMAND.slice(6))
 				code = 0
@@ -997,7 +1010,6 @@ class BLEController {
 	 */
 	static fire(type, data) {
 		type = type.toLowerCase();
-		console.log(this._events)
 		if(this._events[type])
 		this._events[type].forEach(h => h(data))
 	}

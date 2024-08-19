@@ -134,10 +134,12 @@
 		z-index: 1;
 		padding: 24rpx;
 		// background-color: #FFF;
-		backdrop-filter: blur(15px);
-		background-color: rgba(255, 255, 255, 0.4);
+		backdrop-filter: blur(4px);
+		background-color: rgba(203, 242, 255, 0.4);
 		border-radius: 24rpx;
-		box-shadow: rgba(18, 135, 239, 0.3) 2rpx 2rpx 6rpx;
+		// box-shadow: rgba(18, 135, 239, 0.3) 2rpx 2rpx 6rpx;
+		box-shadow: -0rpx -0rpx 4rpx #FFF,
+					0rpx 0rpx 4rpx #e8e8e8;
 		width: 100%;
 		height: 150rpx;
 		&.add{

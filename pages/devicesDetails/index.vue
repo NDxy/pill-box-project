@@ -101,8 +101,9 @@
 					deviceName: '默认药盒',
 				},
 				volume: 20,
-				iconStyle: "background-image: linear-gradient(#ffffff, #c9e3fe); -webkit-background-clip: text;background-clip: text;color: transparent;font-weight:bloder;"
+				iconStyle: "background-image: linear-gradient(#ffffff, #c9e3fe); -webkit-background-clip: text;background-clip: text;color: transparent;font-weight:bloder;",
 				// defaultVol: 20
+				adapterState: {}
 			}
 		},
 		async onLoad(options) {
@@ -130,8 +131,13 @@
 			async authorizeLandB() {
 				const locationState = this.locationState = await LOCATION()
 				if (locationState) {
-					this.BLE.onAdapterState(state => {
+					this.BLE.onAdapterState(async (state) => {
 						console.log('state', state)
+						if( state.available ){
+							 this._reconnect()
+						}else {
+							await this.BLE.openBluetoothAdapter()
+						}
 						//TODO: 查询到状态后重新加载数据
 					})
 					const adapterRes = await this.BLE.openBluetoothAdapter()
@@ -139,8 +145,8 @@
 						// this.BLE.onAdapterState(state => {
 						// 	console.log('state', state)
 						// })
+						console.log(adapterRes)
 						this.tolink()
-						this.adapterState = await this.BLE.getBluetoothAdapterState()
 						
 					} else {
 						uni.showModal({
@@ -171,11 +177,17 @@
 				}
 			},
 			async tolink() {
-				const connectionDev = await this.BLE.createBLEConnection(this.device)
-				const vRes = await this.BLE.getVersion()
-				if(vRes.code == 0) this.device = {...this.device, version:vRes.data}
-				const volRes = await this.BLE.getVolume()
-				if(volRes.code == 0) this.volume = volRes.data
+				const adapterState = this.adapterState = await this.BLE.getBluetoothAdapterState()
+				console.log(adapterState)
+				if(adapterState.available){
+					// 微信api没有移除监听的接口，尽可能减少监听
+					this._onConnectionState()
+					// 进入当前页面首次尝试重连
+					this._reconnect()
+				}else {
+					return
+				}
+				// const connectionDev = await this.BLE.createBLEConnection(this.device)
 			},
 			contactUs(e) {
 				uni.makePhoneCall({
@@ -224,9 +236,71 @@
 			},
 			sliding(e) {
 				uni.vibrateShort({
-					success(){console.log(e.detail.value)},
+					success(){},
 				});
-			}
+			},
+			_onConnectionState() {
+				this.BLE.onConnectionState(e => {
+					if(!e.status){
+						uni.showToast({
+							icon: 'error',
+							title: '蓝牙已断开!'
+						})
+						this.type = '4g'
+						console.log('device', e.data)
+						uni.setStorageSync('device', e.data)
+					}else {
+						uni.showToast({
+							icon: 'success',
+							title: '蓝牙已重连!'
+						})
+						this.type = 'ble'
+						uni.removeStorageSync('device')
+					}
+				})
+			},
+			// 判断是否需要重连，并且确认是否重连成功，通过蓝牙开发不需要重连
+			async _reconnect(){
+				console.log('_reconnect')
+				let _this = this
+				// 蓝牙开阀时会缓存一个开阀的设备信息，用其判断是否需要断线重连
+				const device = uni.getStorageSync('device')
+				// 当前是否需要重连, 
+				if(device){
+					console.log('consumde')
+					const connectionDev = await this.BLE.createBLEConnection(device)
+					// _this.type = res.code == 0 ? 'ble' : '4g'
+					// return res.code == 0 ? true : false
+				}else {
+					const connectionDev = await this.BLE.createBLEConnection(this.device)
+				}
+				
+				// 监听当前蓝牙链接状态
+				const vRes = await this.BLE.getVersion()
+				if(vRes.code == 0) this.device = {...this.device, version:vRes.data}
+				const volRes = await this.BLE.getVolume()
+				if(volRes.code == 0) this.volume = volRes.data
+				
+				// if(device && _this.from == 'index'){
+				// 	console.log('consumde')
+				// 	const res = await this.BLE.createBLEConnection(device)
+				// 	_this.type = res.code == 0 ? 'ble' : '4g'
+				// 	return res.code == 0 ? true : false
+				// }else if(_this.from == 'index') {
+				// 	console.log('index')
+				// 	_this.type = 'ble'
+				// 	return true
+				// }else {
+				// 	console.log('。。。')
+				// 	if(_this.type == 'ble'){
+				// 		_this.type = 'ble'
+				// 		return true
+				// 	}else {
+				// 		_this.type = '4g'
+				// 		return true
+				// 	}
+				// }
+			},
 		}
 	}
 </script>
@@ -405,7 +479,7 @@
 			width: 86%;
 			height: 180rpx;
 			position: relative;
-			padding: 48rpx 32rpx 32rpx 32rpx;
+			padding: 32rpx;
 			box-sizing: border-box;
 			border-radius: 15px;
 			overflow: hidden;
@@ -419,8 +493,11 @@
 			// background-color: #e9f1fa;
 			// background-image: linear-gradient(#7067ff, #4377fd 0%, #f1f5fc 40%);
 			background-image: radial-gradient(circle at 90% 0%, rgba(208, 227, 250, 0.4) 40%, transparent 40.5%);
-			box-shadow:  -5rpx 5rpx 15rpx #ececec,
-			             5rpx -5rpx 10rpx #ffffff;
+			// box-shadow:  -5rpx 5rpx 15rpx #ececec,
+			//              5rpx -5rpx 10rpx #ffffff;
+			
+			box-shadow: -0rpx -0rpx 4rpx #e8e8e8,
+						0rpx 0rpx 4rpx #e8e8e8;
 		}
 		.icon_box{
 			position: absolute;
@@ -439,9 +516,8 @@
 				height: 140rpx;
 				backdrop-filter: blur(4px);
 				border-radius: 40rpx;
-				background-color: rgba(208, 226, 250, 0.2);
-				box-shadow:  -0px -0px 4rpx #ffffff,
-							0rpx 0rpx 4rpx #e8e8e8;
+				box-shadow: 0rpx 0rpx 4rpx #f8f8f8,
+							-0px -0px 4rpx #ffffff;
 				            
 							 color: #b94efc;
 			}
@@ -450,6 +526,7 @@
 				background: linear-gradient(-45deg, #007AFF, rgba(0, 122, 255, 0.8));
 				border-radius: 50%;
 				.icon_mask{
+					background-color: rgba(153, 205, 250, 0.2);
 					border-radius: 50%;
 				}
 			}
@@ -458,6 +535,7 @@
 				background: linear-gradient(-45deg, #0dc8e3, rgba(13, 200, 227, 0.8));
 				border-top-right-radius: 50%;
 				.icon_mask{
+					background-color: rgba(140, 215, 225, 0.2);
 					border-top-right-radius: 50%;
 				}
 			}
@@ -468,6 +546,7 @@
 				bottom: -12rpx;
 				right: -42rpx;
 				.icon_mask{
+					background-color: rgba(215, 197, 248, 0.2);
 					bottom: -28rpx;
 					right: 16rpx;
 				}
@@ -477,6 +556,7 @@
 				background: linear-gradient(-45deg, #ffc665, rgba(255, 198, 101, 0.8));
 				border-top-left-radius: 50%;
 				.icon_mask{
+					background-color: rgba(251, 229, 151, 0.2);
 					border-top-left-radius: 50%;
 				}
 			}
