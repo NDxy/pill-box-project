@@ -68,7 +68,6 @@ class BLEController {
 			console.log("蓝牙适配器已打开,请勿重复操作------》");
 			return {code: 0, status: true};
 		}
-		this.onBluetoothAdapterStateChange()
 		return new Promise((resolve, reject) => {
 			this.removeEvent('adapter')
 			this.on('adapter', resolve)
@@ -77,6 +76,7 @@ class BLEController {
 					this.adapterOpend = true;
 					console.log('初始化蓝牙成功:' + e.errMsg);
 					this.fire('adapter', {code: 0, status: true, ...e})
+					this.onBluetoothAdapterStateChange()
 					
 				},
 				fail: e => {

@@ -115,7 +115,7 @@
 		onShow() {
 			setTimeout(() => {
 				this.authorizeLandB()
-			}, 100)
+			}, 300)
 		},
 		methods: {
 			// 打开蓝牙
@@ -123,7 +123,20 @@
 				const BluetoothAdapter = plus.android.importClass('android.bluetooth.BluetoothAdapter');
 				const blueadapter = BluetoothAdapter.getDefaultAdapter();
 				if (blueadapter != null) {
-					return blueadapter.enable();
+					blueadapter.enable();
+					// const pages = getCurrentPages()
+					// const curpage = pages[pages.length - 1]
+					// setTimeout(() => {
+					// 	curpage.onLoad(curpage)
+					// 	curpage.onShow()
+					// 	curpage.onReady()
+					// }, 500)
+					
+					setTimeout(() => {
+						uni.redirectTo({
+							url: '../devicesDetails/index?device=' + JSON.stringify(this.device)
+						})
+					}, 1000)
 				}
 
 			},
@@ -131,21 +144,17 @@
 			async authorizeLandB() {
 				const locationState = this.locationState = await LOCATION()
 				if (locationState) {
-					this.BLE.onAdapterState(async (state) => {
-						console.log('state', state)
-						if( state.available ){
-							 this._reconnect()
-						}else {
-							await this.BLE.openBluetoothAdapter()
-						}
-						//TODO: 查询到状态后重新加载数据
-					})
+					// await this.BLE.openBluetoothAdapter()
 					const adapterRes = await this.BLE.openBluetoothAdapter()
 					if (adapterRes.code == 0) {
-						// this.BLE.onAdapterState(state => {
-						// 	console.log('state', state)
-						// })
-						console.log(adapterRes)
+						this.BLE.onAdapterState(async (state) => {
+							//TODO: 查询到状态后重新加载数据
+							console.log('state', state)
+							if( state.available ){
+								this._reconnect()
+							}
+						})
+						// console.log(adapterRes)
 						this.tolink()
 						
 					} else {
@@ -261,13 +270,14 @@
 			},
 			// 判断是否需要重连，并且确认是否重连成功，通过蓝牙开发不需要重连
 			async _reconnect(){
-				console.log('_reconnect')
+				// console.log('_reconnect')
 				let _this = this
 				// 蓝牙开阀时会缓存一个开阀的设备信息，用其判断是否需要断线重连
 				const device = uni.getStorageSync('device')
+				// console.log(device)
 				// 当前是否需要重连, 
 				if(device){
-					console.log('consumde')
+					// console.log('consumde')
 					const connectionDev = await this.BLE.createBLEConnection(device)
 					// _this.type = res.code == 0 ? 'ble' : '4g'
 					// return res.code == 0 ? true : false
@@ -281,25 +291,6 @@
 				const volRes = await this.BLE.getVolume()
 				if(volRes.code == 0) this.volume = volRes.data
 				
-				// if(device && _this.from == 'index'){
-				// 	console.log('consumde')
-				// 	const res = await this.BLE.createBLEConnection(device)
-				// 	_this.type = res.code == 0 ? 'ble' : '4g'
-				// 	return res.code == 0 ? true : false
-				// }else if(_this.from == 'index') {
-				// 	console.log('index')
-				// 	_this.type = 'ble'
-				// 	return true
-				// }else {
-				// 	console.log('。。。')
-				// 	if(_this.type == 'ble'){
-				// 		_this.type = 'ble'
-				// 		return true
-				// 	}else {
-				// 		_this.type = '4g'
-				// 		return true
-				// 	}
-				// }
 			},
 		}
 	}

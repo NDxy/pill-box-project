@@ -99,14 +99,19 @@
 				const BluetoothAdapter = plus.android.importClass('android.bluetooth.BluetoothAdapter');
 				const blueadapter = BluetoothAdapter.getDefaultAdapter();
 				if (blueadapter != null) {
-					return blueadapter.enable();
+					blueadapter.enable();
+					setTimeout(() => {
+						uni.redirectTo({
+							url: '../addDevices/index'
+						})
+					}, 1000)
 				}
 				
 			},
 			//  授权打开蓝牙和定位
 			async authorizeLandB(){
 				const locationState = this.locationState = await LOCATION()
-				console.log('locationState', locationState)
+				// console.log('locationState', locationState)
 				if(locationState){
 					this.BLE.onAdapterState(state => {
 						console.log('state', state)
