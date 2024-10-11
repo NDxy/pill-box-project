@@ -79,7 +79,7 @@
 		</view>
 		<mo-dialog ref="modelDialog" @confirm="contactUs" title="联系我们" confirmText="拨打电话">
 			<view class="contactUs">
-				老年病学科：<text style="color: #73c8ff;">0773-3840447</text>
+				老年病科：<text style="color: #73c8ff;">0773-3840447</text>
 			</view>
 		</mo-dialog>
 		<mo-dialog ref="setVolume" title="音量设置" confirmText="确定">

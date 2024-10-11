@@ -1,7 +1,7 @@
 <template>
 	<view class="content">
 		<view class="header" :style="'padding-top:'+ parseInt(+statusbarHeight) + 'rpx'">
-			<image src="../../static/logo.png" mode="scaleToFill"></image>老友药记
+			<image src="../../static/logo.png" mode="scaleToFill"></image>老友记药
 			<!-- <uni-icons @click="toSetting" style="position: absolute; right: 32rpx; color: #fefefe;" type="gear-filled" size="28"></uni-icons> -->
 		</view>
 		<view class="pill_list">
