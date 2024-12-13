@@ -60,6 +60,18 @@
 					videoId:'9',
 					videoName: '⑨糖尿病患者足部护理',
 					src: 'https://aiassistant.oss-cn-shenzhen.aliyuncs.com/panda/2023/12/31/%E2%91%A8%E7%B3%96%E5%B0%BF%E7%97%85%E6%82%A3%E8%80%85%E8%B6%B3%E9%83%A8%E6%8A%A4%E7%90%86.mp4'	
+					},{
+					videoId:'10',
+					videoName: '⑩这个杀手不太冷 冬季谨防低温烫伤',
+					src: 'https://snd-server-file.oss-cn-shenzhen.aliyuncs.com/abc/certificate/wuyou/%E2%91%A9%E8%BF%99%E4%B8%AA%E6%9D%80%E6%89%8B%E4%B8%8D%E5%A4%AA%E5%86%B7%20%E5%86%AC%E5%AD%A3%E8%B0%A8%E9%98%B2%E4%BD%8E%E6%B8%A9%E7%83%AB%E4%BC%A4.mp4'	
+					},{
+					videoId:'11',
+					videoName: '⑪COPD的发病机制',
+					src: 'https://snd-server-file.oss-cn-shenzhen.aliyuncs.com/abc/certificate/wuyou/%E2%91%AACOPD%E7%9A%84%E5%8F%91%E7%97%85%E6%9C%BA%E5%88%B6.mp4'	
+					},{
+					videoId:'12',
+					videoName: '⑫高血压健康宣教',
+					src: 'https://snd-server-file.oss-cn-shenzhen.aliyuncs.com/abc/certificate/wuyou/%E2%91%AB%E9%AB%98%E8%A1%80%E5%8E%8B%E5%81%A5%E5%BA%B7%E5%AE%A3%E6%95%99.mp4'	
 				}],
 				device:{},
 				diaTitle: '温馨提示',
